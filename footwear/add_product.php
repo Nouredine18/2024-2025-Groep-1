@@ -24,7 +24,8 @@ session_start(); // Start de sessie
                 <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li> <!-- Weergave van het aantal artikelen in de winkelwagentje -->
                 <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="add_product.php">Voeg Product Toe</a></li> <!-- Link voor admins om producten toe te voegen -->
+                    <li><a href="add_product.php">Voeg Product Toe</a></li> 
+                    <li><a href="manage_products.php">Beheer Producten</a></li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li> <!-- Welkomstbericht met de voornaam van de gebruiker -->
             <?php else: ?>

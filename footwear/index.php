@@ -40,9 +40,10 @@ if (isset($_SESSION['user_id'])) {
                 <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li> <!-- Display Cart count -->
                 <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="add_product.php">Voeg Product Toe</a>
+                    <li><a href="add_product.php">Voeg Product Toe</a></li>
+                    <li><a href="manage_products.php">Beheer Producten</a></li> <!-- Link naar Productbeheer -->
                 <?php endif; ?>
-                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li> <!-- Display user's voornaam -->
+                <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li> <!-- Display user's voornaam -->
             <?php else: ?>
                 <li><a href="login_register.php">Login/Register</a></li>
             <?php endif; ?>
