@@ -60,7 +60,7 @@ $result = $stmt->get_result(); // Haal het resultaat van de query op
                 <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
                 <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="#">Admin Panel</a></li>
+                    <li><a href="add_product.php">Voeg Product Toe</a>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>
