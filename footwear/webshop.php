@@ -13,7 +13,7 @@ $result = $conn->query($sql); // Voer de query uit en sla het resultaat op
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css"> <!-- Koppel het CSS-bestand voor styling -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Koppel het CSS-bestand voor styling -->
     <title>Webshop</title> <!-- Titel van de pagina -->
 </head>
 <body>

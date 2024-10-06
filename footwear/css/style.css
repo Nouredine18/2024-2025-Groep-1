@@ -1,0 +1,328 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    padding: 40px 20px;
+}
+
+/* Hero Section Styles */
+.hero {
+    background-color: #007bff; /* Hero section background */
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+/* Button Styles */
+.btn {
+    background-color: #007bff;/* Button color */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background-color: #0d56a4; /* Button hover color */
+}
+
+/* Login/Register Form Styles */
+.container {
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #193ecf; /* Green border for input fields */
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border: 1px solid #193ecf; /* Green border for input fields */
+}
+
+input[type="submit"] {
+    background-color: #007bff;/* Button color */
+    color: white;
+    border: none;
+    padding: 10px; /* Adjusted padding */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%; /* Full width for submit button */
+    font-size: 0.9em; /* Smaller font size for buttons */
+}
+
+input[type="submit"]:hover {
+    background-color: #0e44c3; /* Submit button hover color */
+}
+
+.error {
+    color: red;
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* Switch Button Styles */
+.switch-link {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #116ed8; /* Green text for switch link */
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Cart Items Styles */
+.cart-items {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #343a40;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Total and Empty Cart Styles */
+.total {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.empty-cart {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5em;
+    }
+
+    .container {
+        width: 90%; /* Full width on smaller screens */
+    }
+    
+    header {
+        flex-direction: column; /* Stack items on smaller screens */
+        align-items: flex-start; /* Align items to the start */
+    }
+    
+    nav ul {
+        display: flex; /* Flex layout for nav items */
+        flex-wrap: wrap; /* Wrap items if needed */
+    }
+    
+    nav ul li {
+        margin-left: 10px; /* Adjust space for smaller screens */
+        margin-bottom: 5px; /* Add bottom margin */
+    }
+    
+    .cart-items {
+        width: 90%; /* Full width for cart on smaller screens */
+    }
+}
+
+/* Admin Panel */
+.admin-panel {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #1c12ab;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    z-index: 100;
+}
+
+.admin-panel.hidden {
+    display: none;
+}
+
+.admin-panel h2 {
+    color: #222fbc;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+/* Size Options */
+.size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.size-options input[type="radio"] {
+    display: none;
+}
+
+.size-options label {
+    padding: 5px 10px;
+    background-color: #0d56a4; /* Size options color */
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.size-options input[type="radio"]:checked + label {
+    background-color: #388E3C; /* Selected size color */
+}
+
+#addVariantBtn {
+    background-color:  #0d56a4;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+#addVariantBtn:hover {
+    background-color:  #0d56a4;
+}
+
+/* Product Grid Styles */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-item {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.product-item:hover {
+    transform: scale(1.05); /* Scale effect on hover */
+}
+
+.product-item h3 {
+    margin: 10px 0;
+}
+
+.product-item p {
+    margin: 5px 0;
+}
