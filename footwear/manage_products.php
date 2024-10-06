@@ -19,9 +19,23 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// Haal alle producten op
+// Initiële productquery, zal worden aangepast als er een zoekopdracht is
 $sql_products = "SELECT * FROM Products";
-$result_products = $conn->query($sql_products);
+
+// Controleer of er een zoekopdracht is
+if (isset($_POST["indienen"])) {
+    $gezochte_zoekresultaat = $_POST["zoekopdracht"];
+    $zoekresultaat = "%" . $gezochte_zoekresultaat . "%";
+    $sql_products = "SELECT * FROM Products WHERE naam LIKE ?";
+}
+
+// Haal alle producten op
+$stmt_products = $conn->prepare($sql_products);
+if (isset($_POST["indienen"])) {
+    $stmt_products->bind_param("s", $zoekresultaat);
+}
+$stmt_products->execute();
+$result_products = $stmt_products->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -36,20 +50,21 @@ $result_products = $conn->query($sql_products);
 <header>
     <div class="logo">SchoenenWijns</div>
     <nav>
-    <ul>
-            <li><a href="index.php">Home</a></li> <!-- Link naar de homepage -->
-            <li><a href="webshop.php">Shop</a></li> <!-- Link naar de webshop -->
+        <ul>
+            <li><a href="index.php">Home</a></li>
+            <li><a href="webshop.php">Shop</a></li>
 
             <?php if (isset($_SESSION['user_id'])): ?>
-                <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li> <!-- Toon het aantal artikelen in de winkelwagen -->
-                <li><a href="logout.php">Logout</a></li> <!-- Link om uit te loggen -->
+                <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
+                <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="add_product.php">Voeg Product Toe</a>
+                    <li><a href="add_product.php">Voeg Product Toe</a></li>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
+                    <li><a href="active_deactivate_show_users.php">Users</a></li>
                 <?php endif; ?>
-                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li> <!-- Welkomstbericht met de voornaam van de gebruiker -->
+                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>
-                <li><a href="login_register.php">Login/Register</a></li> <!-- Link om in te loggen of te registreren -->
+                <li><a href="login_register.php">Login/Register</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -58,7 +73,16 @@ $result_products = $conn->query($sql_products);
 <main>
     <div class="hero">
         <h1>Beheer Producten</h1>
-        <p>Hier kunt u producten bewerken of verwijderen.</p>
+        <p>Hier kunt u producten bewerken, zoeken of verwijderen.</p>
+    </div>
+
+    <div class="search-form">
+        <label>Product</label>
+        <form action="manage_products.php" method="post">
+            <label>Zoek Artikelen</label>
+            <input type="text" name="zoekopdracht" placeholder="geef naam artikel"required>
+            <input type="submit" name="indienen" value="Zoek">
+        </form>
     </div>
 
     <div class="products">
@@ -73,7 +97,7 @@ $result_products = $conn->query($sql_products);
             </tr>
             <?php while ($product = $result_products->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo $product['artikelnr']; ?></td>
+                    <td><?php echo htmlspecialchars($product['artikelnr']); ?></td>
                     <td><?php echo htmlspecialchars($product['naam']); ?></td>
                     <td><?php echo htmlspecialchars($product['prijs']); ?></td>
                     <td><?php echo htmlspecialchars($product['type_of_shoe']); ?></td>

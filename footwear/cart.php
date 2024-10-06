@@ -62,6 +62,7 @@ $result = $stmt->get_result(); // Haal het resultaat van de query op
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
                     <li><a href="add_product.php">Voeg Product Toe</a>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
+                    <li><a href="active_deactivate_show_users.php">Users</a></li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
                 
