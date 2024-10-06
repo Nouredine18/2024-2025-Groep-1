@@ -18,17 +18,14 @@ session_start(); // Start de sessie
     <nav>
         <ul>
             <li><a href="index.php">Home</a></li>
-            <li><a href="webshop.php">Shop</a></li> <!-- Link naar de webshop -->
-
             <?php if (isset($_SESSION['user_id'])): ?>
-                <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li> <!-- Weergave van het aantal artikelen in de winkelwagentje -->
                 <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="add_product.php">Voeg Product Toe</a></li> 
+                    <li><a href="add_product.php">Voeg Product Toe</a></li>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
                 <?php endif; ?>
-                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li> <!-- Welkomstbericht met de voornaam van de gebruiker -->
+                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>
                 <li><a href="login_register.php">Login/Register</a></li>
             <?php endif; ?>

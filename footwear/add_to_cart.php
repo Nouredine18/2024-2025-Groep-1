@@ -46,7 +46,7 @@ if (isset($_POST['artikelnr']) && isset($_POST['variantnr']) && isset($_POST['aa
     $cart_row = $cart_count_result->fetch_assoc();
     $_SESSION['cart_count'] = $cart_row['cart_count'];
 
-    header("Location: webshop.php"); // Redirect back to webshop after adding to cart
+    header("Location: index.php"); // Redirect back to webshop after adding to cart
     exit();
 } else {
     echo "Invalid product details.";
