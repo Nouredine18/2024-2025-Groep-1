@@ -262,27 +262,49 @@ label {
     margin: 10px 0 5px;
 }
 
-/* Size Options */
+/* Size Options Styling */
 .size-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 10px; /* Increased gap for better spacing */
+    justify-content: center; /* Center the size options */
+    margin-top: 20px; /* Space above size options */
 }
 
 .size-options input[type="radio"] {
-    display: none;
+    display: none; /* Hide the radio button */
 }
 
 .size-options label {
-    padding: 5px 10px;
-    background-color: #0d56a4; /* Size options color */
+    padding: 10px 15px; /* Larger padding for better click area */
+    background-color: #0d56a4; /* Default background color for size */
     color: white;
-    border-radius: 20px;
+    border-radius: 30px; /* Rounded shape for size buttons */
     cursor: pointer;
+    font-size: 1em; /* Consistent font size */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth hover effect */
 }
 
 .size-options input[type="radio"]:checked + label {
-    background-color: #388E3C; /* Selected size color */
+    background-color: #388E3C; /* Highlight the selected size */
+    transform: scale(1.1); /* Slightly larger size when selected */
+}
+
+.size-options label:hover {
+    background-color: #2e6daf; /* Hover effect on unselected sizes */
+}
+
+/* Responsive Styling for Size Options */
+@media (max-width: 768px) {
+    .size-options {
+        justify-content: flex-start; /* Align sizes to the start on smaller screens */
+        gap: 8px; /* Slightly smaller gap */
+    }
+    
+    .size-options label {
+        padding: 8px 12px; /* Adjusted padding for smaller screens */
+        font-size: 0.9em; /* Smaller font size */
+    }
 }
 
 #addVariantBtn {
@@ -299,24 +321,27 @@ label {
     background-color:  #0d56a4;
 }
 
-/* Product Grid Styles */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 20px; /* Ensure there’s enough space between items */
+    margin: 20px; /* Add margin to the grid */
 }
 
 .product-item {
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 10px;
-    padding: 20px;
+    padding: 15px; /* Ensure consistent padding */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s;
+    text-align: center; /* Center text within the product item */
 }
 
-.product-item:hover {
-    transform: scale(1.05); /* Scale effect on hover */
+.product-item img {
+    max-width: 100%; /* Ensure images scale with their container */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Optional: Rounded corners for images */
 }
 
 .product-item h3 {
@@ -325,4 +350,5 @@ label {
 
 .product-item p {
     margin: 5px 0;
+    font-size: 0.9em; /* Adjust font size for product descriptions */
 }
