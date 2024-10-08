@@ -262,49 +262,27 @@ label {
     margin: 10px 0 5px;
 }
 
-/* Size Options Styling */
+/* Size Options */
 .size-options {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px; /* Increased gap for better spacing */
-    justify-content: center; /* Center the size options */
-    margin-top: 20px; /* Space above size options */
+    gap: 5px;
 }
 
 .size-options input[type="radio"] {
-    display: none; /* Hide the radio button */
+    display: none;
 }
 
 .size-options label {
-    padding: 10px 15px; /* Larger padding for better click area */
-    background-color: #0d56a4; /* Default background color for size */
+    padding: 5px 10px;
+    background-color: #0d56a4; /* Size options color */
     color: white;
-    border-radius: 30px; /* Rounded shape for size buttons */
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 1em; /* Consistent font size */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth hover effect */
 }
 
 .size-options input[type="radio"]:checked + label {
-    background-color: #388E3C; /* Highlight the selected size */
-    transform: scale(1.1); /* Slightly larger size when selected */
-}
-
-.size-options label:hover {
-    background-color: #2e6daf; /* Hover effect on unselected sizes */
-}
-
-/* Responsive Styling for Size Options */
-@media (max-width: 768px) {
-    .size-options {
-        justify-content: flex-start; /* Align sizes to the start on smaller screens */
-        gap: 8px; /* Slightly smaller gap */
-    }
-    
-    .size-options label {
-        padding: 8px 12px; /* Adjusted padding for smaller screens */
-        font-size: 0.9em; /* Smaller font size */
-    }
+    background-color: #388E3C; /* Selected size color */
 }
 
 #addVariantBtn {
@@ -321,27 +299,24 @@ label {
     background-color:  #0d56a4;
 }
 
+/* Product Grid Styles */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px; /* Ensure there’s enough space between items */
-    margin: 20px; /* Add margin to the grid */
+    gap: 20px;
 }
 
 .product-item {
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 10px;
-    padding: 15px; /* Ensure consistent padding */
+    padding: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s;
-    text-align: center; /* Center text within the product item */
 }
 
-.product-item img {
-    max-width: 100%; /* Ensure images scale with their container */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 5px; /* Optional: Rounded corners for images */
+.product-item:hover {
+    transform: scale(1.05); /* Scale effect on hover */
 }
 
 .product-item h3 {
@@ -350,5 +325,33 @@ label {
 
 .product-item p {
     margin: 5px 0;
-    font-size: 0.9em; /* Adjust font size for product descriptions */
+}
+.social-media ul {
+    list-style: none; /* Remove bullets */
+    padding: 0;
+    margin: 0; /* Remove any margins */
+    display: flex; /* Make items align horizontally */
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 15px; /* Space between the buttons */
+}
+
+.social-media ul li {
+    display: inline-block;
+}
+
+.social-media ul li a {
+    padding: 10px 20px;
+    background-color: #007bff; /* Blue color */
+    color: white; /* White text */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    display: flex; /* Make the anchor a flex container */
+    align-items: center; /* Center items vertically */
+    gap: 8px; /* Space between icon and text */
+}
+
+.social-media ul li a:hover {
+    background-color: #0056b3; /* Darker blue on hover */
 }
