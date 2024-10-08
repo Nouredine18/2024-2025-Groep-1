@@ -312,6 +312,16 @@ if (isset($_SESSION['user_id'])) {
 
 <footer>
     <p>&copy; 2024 FootWear. All rights reserved.</p>
+
+    <div class="social-media">
+        <h3>Follow us on:</h3>
+        <ul>
+            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+            <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
+            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+            <li><a href="https://www.linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i> LinkedIn</a></li>
+        </ul>
+    </div>
 </footer>
 </body>
 </html>
