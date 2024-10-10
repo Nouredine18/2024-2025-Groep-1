@@ -241,6 +241,37 @@ if (isset($_SESSION['user_id'])) {
                 grid-template-columns: 1fr; /* Full-width on small screens */
             }
         }
+
+            .social-media ul {
+                list-style: none; /* Remove bullets */
+                padding: 0;
+                margin: 0; /* Remove any margins */
+                display: flex; /* Make items align horizontally */
+                justify-content: center; /* Center the buttons horizontally */
+                gap: 15px; /* Space between the buttons */
+            }
+
+            .social-media ul li {
+                display: inline-block;
+            }
+
+            .social-media ul li a {
+                padding: 10px 20px;
+                background-color: #007bff; /* Blue color */
+                color: white; /* White text */
+                text-decoration: none; /* Remove underline */
+                border-radius: 5px;
+                font-weight: bold;
+                transition: background-color 0.3s ease;
+                display: flex; /* Make the anchor a flex container */
+                align-items: center; /* Center items vertically */
+                gap: 8px; /* Space between icon and text */
+            }
+
+            .social-media ul li a:hover {
+                background-color: #0056b3; /* Darker blue on hover */
+            }
+
     </style>
 </head>
 <body>
@@ -271,10 +302,8 @@ if (isset($_SESSION['user_id'])) {
 
     <div class="product-grid">
         <?php
-        // SQL-query to fetch products and their variants
-        $sql = "SELECT p.artikelnr, p.naam, p.prijs, pv.variantnr, pv.kleur, pv.maat, pv.stock, p.directory 
-                FROM Products p 
-                JOIN ProductVariant pv ON p.artikelnr = pv.artikelnr";
+        // SQL-query to fetch products
+        $sql = "SELECT artikelnr, naam, prijs, directory FROM Products";
         $result = $conn->query($sql);
 
         if ($result && $result->num_rows > 0):  // Check if query returned results
@@ -290,16 +319,10 @@ if (isset($_SESSION['user_id'])) {
                 
                 <h3><?php echo $row['naam']; ?></h3> <!-- Display the product name -->
                 <p>Price: €<?php echo $row['prijs']; ?></p> <!-- Display the product price -->
-                <p>Color: <?php echo $row['kleur']; ?></p> <!-- Display the product color -->
-                <p>Size: <?php echo $row['maat']; ?></p> <!-- Display the product size -->
-                <p>In stock: <?php echo $row['stock']; ?></p> <!-- Display the stock quantity -->
                 <form action="add_to_cart.php" method="post"> <!-- Form to add product to cart -->
                     <input type="hidden" name="artikelnr" value="<?php echo $row['artikelnr']; ?>"> <!-- Hidden input for article number -->
-                    <input type="hidden" name="variantnr" value="<?php echo $row['variantnr']; ?>"> <!-- Hidden input for variant number -->
-                    <label for="aantal">Quantity:</label> <!-- Label for quantity -->
-                    <input type="number" name="aantal" value="1" min="1" max="<?php echo $row['stock']; ?>" class="quantity-input"> <!-- Input field for quantity -->
-                    <input type="submit" value="Add to Cart" class="button"> <!-- Button to add to cart -->
                 </form>
+                <a href="info_product.php?artikelnr=<?php echo $row['artikelnr']; ?>" class="button">See More</a> <!-- See More button -->
             </div>
         <?php 
             endwhile;
