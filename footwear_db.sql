@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Gegenereerd op: 10 okt 2024 om 11:58
+-- Gegenereerd op: 10 okt 2024 om 17:35
 -- Serverversie: 10.4.32-MariaDB
 -- PHP-versie: 8.2.12
 
@@ -72,7 +72,10 @@ INSERT INTO `cart` (`user_id`, `artikelnr`, `variantnr`, `aantal`) VALUES
 (1, 2, 1, 1),
 (1, 3, 1, 2),
 (2, 1, 1, 1),
-(2, 1, 2, 1);
+(2, 1, 2, 1),
+(4, 2, 1, 2),
+(4, 2, 2, 1),
+(4, 3, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -109,11 +112,11 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`artikelnr`, `naam`, `prijs`, `type_of_shoe`, `directory`, `product_information`) VALUES
-(1, 'Nike Air Max', 120.00, 'Sneaker', 'nike_air_max.jpg', NULL),
-(2, 'Adidas Ultraboost', 150.00, 'Running Shoe', 'adidas_ultraboost.jpg', NULL),
-(3, 'Converse All Star', 80.00, 'Casual Shoe', 'converse_all_star.jpg', NULL),
-(4, 'Timberland Boot', 200.00, 'Boot', 'timberland_boot.jpg', NULL),
-(5, 'Puma RS-X', 110.00, 'Sport Shoe', 'puma_RSX.jpg', NULL);
+(1, 'Nike Air Max', 120.00, 'Sneaker', 'nike_air_max.jpg', 'The Nike Air Max is a popular sneaker known for its air cushioning, providing comfort and style. Perfect for casual wear and sporting activities.'),
+(2, 'Adidas Ultraboost', 150.00, 'Running Shoe', 'adidas_ultraboost.jpg', 'The Adidas Ultraboost is a running shoe designed for maximum energy return. Its lightweight Primeknit upper offers breathability and comfort during long runs.'),
+(3, 'Converse All Star', 80.00, 'Casual Shoe', 'converse_all_star.jpg', 'The Converse All Star is an iconic casual shoe that never goes out of style. Featuring a durable canvas upper and rubber sole, it is perfect for everyday wear.'),
+(4, 'Timberland Boot', 200.00, 'Boot', 'timberland_boot.jpg', 'The Timberland Boot is a rugged and durable boot, designed for tough outdoor conditions. It features premium leather and a waterproof design to keep your feet dry.'),
+(5, 'Puma RS-X', 110.00, 'Sport Shoe', 'puma_RSX.jpg', 'The Puma RS-X is a sport shoe that combines retro design with modern technology. It offers excellent cushioning and support, perfect for high-intensity activities.');
 
 -- --------------------------------------------------------
 
@@ -136,12 +139,12 @@ CREATE TABLE `productvariant` (
 --
 
 INSERT INTO `productvariant` (`artikelnr`, `variantnr`, `kleur`, `maat`, `stock`, `bought_counter`, `variant_directory`) VALUES
-(1, 1, 'Zwart', 42, 10, 0, NULL),
-(1, 2, 'Wit', 43, 5, 0, NULL),
-(2, 1, 'Rood', 40, 20, 0, NULL),
-(2, 2, 'Blauw', 41, 15, 0, NULL),
-(3, 1, 'Groen', 44, 8, 0, NULL),
-(3, 2, 'Zwart', 45, 12, 0, NULL);
+(1, 1, 'black', 42, 10, 0, NULL),
+(1, 2, 'white', 43, 5, 0, NULL),
+(2, 1, 'red', 40, 20, 0, NULL),
+(2, 2, 'blue', 41, 15, 0, NULL),
+(3, 1, 'green', 44, 8, 0, NULL),
+(3, 2, 'black', 45, 12, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -157,6 +160,16 @@ CREATE TABLE `reviews` (
   `rating` int(1) DEFAULT NULL,
   `review_date` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `reviews`
+--
+
+INSERT INTO `reviews` (`review_id`, `user_id`, `artikelnr`, `review_text`, `rating`, `review_date`) VALUES
+(1, 4, 3, 'good', 4, '2024-10-10 17:25:56'),
+(2, 4, 3, 'To be honest I excpected better from this shoe', 4, '2024-10-10 17:26:24'),
+(3, 4, 3, 'zd', 4, '2024-10-10 17:33:59'),
+(4, 4, 1, 'what', 4, '2024-10-10 17:34:26');
 
 -- --------------------------------------------------------
 
@@ -262,7 +275,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT voor een tabel `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT voor een tabel `user`
