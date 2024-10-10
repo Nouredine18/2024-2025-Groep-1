@@ -8,11 +8,21 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-if (isset($_POST['artikelnr']) && isset($_POST['variantnr']) && isset($_POST['aantal'])) {
+if (isset($_POST['artikelnr']) && isset($_POST['kleur']) && isset($_POST['maat']) && isset($_POST['aantal'])) {
     $user_id = $_SESSION['user_id'];
     $artikelnr = intval($_POST['artikelnr']);
-    $variantnr = intval($_POST['variantnr']);
+    $kleur = $_POST['kleur'];
+    $maat = $_POST['maat'];
     $aantal = intval($_POST['aantal']);
+
+    // Get the variantnr based on artikelnr, kleur, and maat
+    $sql_variant = "SELECT variantnr FROM ProductVariant WHERE artikelnr = ? AND kleur = ? AND maat = ?";
+    $stmt_variant = $conn->prepare($sql_variant);
+    $stmt_variant->bind_param("iss", $artikelnr, $kleur, $maat);
+    $stmt_variant->execute();
+    $result_variant = $stmt_variant->get_result();
+    $variant = $result_variant->fetch_assoc();
+    $variantnr = $variant['variantnr'];
 
     // Check if the item already exists in the cart for this user
     $sql = "SELECT aantal FROM Cart WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
@@ -46,7 +56,7 @@ if (isset($_POST['artikelnr']) && isset($_POST['variantnr']) && isset($_POST['aa
     $cart_row = $cart_count_result->fetch_assoc();
     $_SESSION['cart_count'] = $cart_row['cart_count'];
 
-    header("Location: index.php"); // Redirect back to webshop after adding to cart
+    header("Location: index.php"); // Redirect to cart page after adding to cart
     exit();
 } else {
     echo "Invalid product details.";
