@@ -13,12 +13,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
 
 $uploadOk = 1; // Variabele om bij te houden of de upload succesvol is
 $target_dir = "directory/"; // De map waar geüploade bestanden worden opgeslagen
-$imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION)); // Haal de bestandsextensie op en maak deze klein
 
 // Controleer of het formulier is ingediend
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Controleer of er een bestand is geüpload en dat er geen fouten zijn
     if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
+        $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION)); // Haal de bestandsextensie op en maak deze klein
+
         // Controleer of het geüploade bestand een afbeelding is
         $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
         if ($check !== false) {
@@ -60,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Voeg product toe aan de Products tabel
                     $insert_product_sql = "INSERT INTO Products (naam, prijs, type_of_shoe, directory) VALUES (?, ?, ?, ?)";
                     $stmt_product = $conn->prepare($insert_product_sql); // Voorbereiden van de SQL-instructie
-                    $stmt_product->bind_param("sdss", $naam, $prijs, $type_of_shoe, $target_file); // Binden van parameters aan de instructie
+                    $stmt_product->bind_param("sdss", $naam, $prijs, $type_of_shoe, $unique_filename); // Binden van parameters aan de instructie
 
                     if ($stmt_product->execute()) {
                         // Verkrijg het laatst ingevoerde productnummer

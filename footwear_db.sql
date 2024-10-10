@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Gegenereerd op: 06 okt 2024 om 21:36
--- Serverversie: 10.4.28-MariaDB
--- PHP-versie: 8.2.4
+-- Host: 127.0.0.1
+-- Gegenereerd op: 10 okt 2024 om 11:58
+-- Serverversie: 10.4.32-MariaDB
+-- PHP-versie: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Adres`
+-- Tabelstructuur voor tabel `adres`
 --
 
-CREATE TABLE `Adres` (
+CREATE TABLE `adres` (
   `address_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `straat` varchar(255) DEFAULT NULL,
@@ -40,10 +40,10 @@ CREATE TABLE `Adres` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Betaling`
+-- Tabelstructuur voor tabel `betaling`
 --
 
-CREATE TABLE `Betaling` (
+CREATE TABLE `betaling` (
   `bestelling_id` int(11) NOT NULL,
   `betalingsmethode` varchar(50) DEFAULT NULL,
   `oorspronkelijke_prijs` decimal(10,2) DEFAULT NULL,
@@ -54,10 +54,10 @@ CREATE TABLE `Betaling` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Cart`
+-- Tabelstructuur voor tabel `cart`
 --
 
-CREATE TABLE `Cart` (
+CREATE TABLE `cart` (
   `user_id` int(11) NOT NULL,
   `artikelnr` int(11) NOT NULL,
   `variantnr` int(11) NOT NULL,
@@ -65,10 +65,10 @@ CREATE TABLE `Cart` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Gegevens worden geëxporteerd voor tabel `Cart`
+-- Gegevens worden geëxporteerd voor tabel `cart`
 --
 
-INSERT INTO `Cart` (`user_id`, `artikelnr`, `variantnr`, `aantal`) VALUES
+INSERT INTO `cart` (`user_id`, `artikelnr`, `variantnr`, `aantal`) VALUES
 (1, 2, 1, 1),
 (1, 3, 1, 2),
 (2, 1, 1, 1),
@@ -77,10 +77,10 @@ INSERT INTO `Cart` (`user_id`, `artikelnr`, `variantnr`, `aantal`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Factuur`
+-- Tabelstructuur voor tabel `factuur`
 --
 
-CREATE TABLE `Factuur` (
+CREATE TABLE `factuur` (
   `bestelling_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `address_id` int(11) DEFAULT NULL,
@@ -92,62 +92,64 @@ CREATE TABLE `Factuur` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Products`
+-- Tabelstructuur voor tabel `products`
 --
 
-CREATE TABLE `Products` (
+CREATE TABLE `products` (
   `artikelnr` int(11) NOT NULL,
   `naam` varchar(100) DEFAULT NULL,
   `prijs` decimal(10,2) DEFAULT NULL,
   `type_of_shoe` varchar(50) DEFAULT NULL,
-  `directory` varchar(255) DEFAULT NULL
+  `directory` varchar(255) DEFAULT NULL,
+  `product_information` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Gegevens worden geëxporteerd voor tabel `Products`
+-- Gegevens worden geëxporteerd voor tabel `products`
 --
 
-INSERT INTO `Products` (`artikelnr`, `naam`, `prijs`, `type_of_shoe`, `directory`) VALUES
-(1, 'Nike Air Max', 120.00, 'Sneaker', NULL),
-(2, 'Adidas Ultraboost', 150.00, 'Running Shoe', NULL),
-(3, 'Converse All Star', 80.00, 'Casual Shoe', NULL),
-(4, 'Timberland Boot', 200.00, 'Boot', NULL),
-(5, 'Puma RS-X', 110.00, 'Sport Shoe', NULL);
+INSERT INTO `products` (`artikelnr`, `naam`, `prijs`, `type_of_shoe`, `directory`, `product_information`) VALUES
+(1, 'Nike Air Max', 120.00, 'Sneaker', 'nike_air_max.jpg', NULL),
+(2, 'Adidas Ultraboost', 150.00, 'Running Shoe', 'adidas_ultraboost.jpg', NULL),
+(3, 'Converse All Star', 80.00, 'Casual Shoe', 'converse_all_star.jpg', NULL),
+(4, 'Timberland Boot', 200.00, 'Boot', 'timberland_boot.jpg', NULL),
+(5, 'Puma RS-X', 110.00, 'Sport Shoe', 'puma_RSX.jpg', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `ProductVariant`
+-- Tabelstructuur voor tabel `productvariant`
 --
 
-CREATE TABLE `ProductVariant` (
+CREATE TABLE `productvariant` (
   `artikelnr` int(11) NOT NULL,
   `variantnr` int(11) NOT NULL,
   `kleur` varchar(50) DEFAULT NULL,
   `maat` int(11) DEFAULT NULL,
   `stock` int(11) DEFAULT NULL,
-  `bought_counter` int(11) DEFAULT NULL
+  `bought_counter` int(11) DEFAULT NULL,
+  `variant_directory` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Gegevens worden geëxporteerd voor tabel `ProductVariant`
+-- Gegevens worden geëxporteerd voor tabel `productvariant`
 --
 
-INSERT INTO `ProductVariant` (`artikelnr`, `variantnr`, `kleur`, `maat`, `stock`, `bought_counter`) VALUES
-(1, 1, 'Zwart', 42, 10, 0),
-(1, 2, 'Wit', 43, 5, 0),
-(2, 1, 'Rood', 40, 20, 0),
-(2, 2, 'Blauw', 41, 15, 0),
-(3, 1, 'Groen', 44, 8, 0),
-(3, 2, 'Zwart', 45, 12, 0);
+INSERT INTO `productvariant` (`artikelnr`, `variantnr`, `kleur`, `maat`, `stock`, `bought_counter`, `variant_directory`) VALUES
+(1, 1, 'Zwart', 42, 10, 0, NULL),
+(1, 2, 'Wit', 43, 5, 0, NULL),
+(2, 1, 'Rood', 40, 20, 0, NULL),
+(2, 2, 'Blauw', 41, 15, 0, NULL),
+(3, 1, 'Groen', 44, 8, 0, NULL),
+(3, 2, 'Zwart', 45, 12, 0, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `Reviews`
+-- Tabelstructuur voor tabel `reviews`
 --
 
-CREATE TABLE `Reviews` (
+CREATE TABLE `reviews` (
   `review_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `artikelnr` int(11) NOT NULL,
@@ -159,10 +161,10 @@ CREATE TABLE `Reviews` (
 -- --------------------------------------------------------
 
 --
--- Tabelstructuur voor tabel `User`
+-- Tabelstructuur voor tabel `user`
 --
 
-CREATE TABLE `User` (
+CREATE TABLE `user` (
   `user_id` int(11) NOT NULL,
   `naam` varchar(100) DEFAULT NULL,
   `voornaam` varchar(100) DEFAULT NULL,
@@ -174,68 +176,69 @@ CREATE TABLE `User` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Gegevens worden geëxporteerd voor tabel `User`
+-- Gegevens worden geëxporteerd voor tabel `user`
 --
 
-INSERT INTO `User` (`user_id`, `naam`, `voornaam`, `password_hash`, `user_type`, `email`, `schoenmaat`, `actief`) VALUES
+INSERT INTO `user` (`user_id`, `naam`, `voornaam`, `password_hash`, `user_type`, `email`, `schoenmaat`, `actief`) VALUES
 (1, 'Nouredine', 'Tahrioui', '$2y$10$uMlpcwplnV4kla.9VQ9jYe5wXCPs9XdIJGVLtL9zzy7d09LGJ7kf6', 'admin', 'nouredine.tahrioui@gmail.com', 40, 1),
 (2, 'Balhaar', 'Bram', '$2y$10$Vvw7UxN3f.NAB7GquNYQ2ujMTkKRpgwlH3I9RE4vFDuChEl0Col52', 'user', 'bram@gmail.com', 39, 1),
-(3, 'Galardo EL', 'dante', '$2y$10$gOYBsWBDSQJZTNyjCs6FJuSrCWvpw7FbY7pjLq0P8KDWfzj42z/fq', 'user', 'dante@gmail.com', 40, 1);
+(3, 'Galardo EL', 'dante', '$2y$10$gOYBsWBDSQJZTNyjCs6FJuSrCWvpw7FbY7pjLq0P8KDWfzj42z/fq', 'user', 'dante@gmail.com', 40, 1),
+(4, 'Tahrioui', 'Nouredine', '$2y$10$nWpb17mUJW1b7YmoUztxB.mEqkiNc3S7IiGiO5NlbWXSVIDlLoDmW', 'admin', 'admin@gmail.com', 39, 1);
 
 --
 -- Indexen voor geëxporteerde tabellen
 --
 
 --
--- Indexen voor tabel `Adres`
+-- Indexen voor tabel `adres`
 --
-ALTER TABLE `Adres`
+ALTER TABLE `adres`
   ADD PRIMARY KEY (`address_id`,`user_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexen voor tabel `Betaling`
+-- Indexen voor tabel `betaling`
 --
-ALTER TABLE `Betaling`
+ALTER TABLE `betaling`
   ADD PRIMARY KEY (`bestelling_id`);
 
 --
--- Indexen voor tabel `Cart`
+-- Indexen voor tabel `cart`
 --
-ALTER TABLE `Cart`
+ALTER TABLE `cart`
   ADD PRIMARY KEY (`user_id`,`artikelnr`,`variantnr`),
   ADD KEY `artikelnr` (`artikelnr`,`variantnr`);
 
 --
--- Indexen voor tabel `Factuur`
+-- Indexen voor tabel `factuur`
 --
-ALTER TABLE `Factuur`
+ALTER TABLE `factuur`
   ADD PRIMARY KEY (`bestelling_id`);
 
 --
--- Indexen voor tabel `Products`
+-- Indexen voor tabel `products`
 --
-ALTER TABLE `Products`
+ALTER TABLE `products`
   ADD PRIMARY KEY (`artikelnr`);
 
 --
--- Indexen voor tabel `ProductVariant`
+-- Indexen voor tabel `productvariant`
 --
-ALTER TABLE `ProductVariant`
+ALTER TABLE `productvariant`
   ADD PRIMARY KEY (`artikelnr`,`variantnr`);
 
 --
--- Indexen voor tabel `Reviews`
+-- Indexen voor tabel `reviews`
 --
-ALTER TABLE `Reviews`
+ALTER TABLE `reviews`
   ADD PRIMARY KEY (`review_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `artikelnr` (`artikelnr`);
 
 --
--- Indexen voor tabel `User`
+-- Indexen voor tabel `user`
 --
-ALTER TABLE `User`
+ALTER TABLE `user`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`);
 
@@ -244,64 +247,64 @@ ALTER TABLE `User`
 --
 
 --
--- AUTO_INCREMENT voor een tabel `Betaling`
+-- AUTO_INCREMENT voor een tabel `betaling`
 --
-ALTER TABLE `Betaling`
+ALTER TABLE `betaling`
   MODIFY `bestelling_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT voor een tabel `Products`
+-- AUTO_INCREMENT voor een tabel `products`
 --
-ALTER TABLE `Products`
-  MODIFY `artikelnr` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `products`
+  MODIFY `artikelnr` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT voor een tabel `Reviews`
+-- AUTO_INCREMENT voor een tabel `reviews`
 --
-ALTER TABLE `Reviews`
+ALTER TABLE `reviews`
   MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT voor een tabel `User`
+-- AUTO_INCREMENT voor een tabel `user`
 --
-ALTER TABLE `User`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+ALTER TABLE `user`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Beperkingen voor geëxporteerde tabellen
 --
 
 --
--- Beperkingen voor tabel `Adres`
+-- Beperkingen voor tabel `adres`
 --
-ALTER TABLE `Adres`
-  ADD CONSTRAINT `adres_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
+ALTER TABLE `adres`
+  ADD CONSTRAINT `adres_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
 
 --
--- Beperkingen voor tabel `Cart`
+-- Beperkingen voor tabel `cart`
 --
-ALTER TABLE `Cart`
-  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`artikelnr`,`variantnr`) REFERENCES `ProductVariant` (`artikelnr`, `variantnr`),
-  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`);
+ALTER TABLE `cart`
+  ADD CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`artikelnr`,`variantnr`) REFERENCES `productvariant` (`artikelnr`, `variantnr`),
+  ADD CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
 
 --
--- Beperkingen voor tabel `Factuur`
+-- Beperkingen voor tabel `factuur`
 --
-ALTER TABLE `Factuur`
-  ADD CONSTRAINT `factuur_ibfk_1` FOREIGN KEY (`bestelling_id`) REFERENCES `Betaling` (`bestelling_id`);
+ALTER TABLE `factuur`
+  ADD CONSTRAINT `factuur_ibfk_1` FOREIGN KEY (`bestelling_id`) REFERENCES `betaling` (`bestelling_id`);
 
 --
--- Beperkingen voor tabel `ProductVariant`
+-- Beperkingen voor tabel `productvariant`
 --
-ALTER TABLE `ProductVariant`
-  ADD CONSTRAINT `productvariant_ibfk_1` FOREIGN KEY (`artikelnr`) REFERENCES `Products` (`artikelnr`);
+ALTER TABLE `productvariant`
+  ADD CONSTRAINT `productvariant_ibfk_1` FOREIGN KEY (`artikelnr`) REFERENCES `products` (`artikelnr`);
 
 --
--- Beperkingen voor tabel `Reviews`
+-- Beperkingen voor tabel `reviews`
 --
-ALTER TABLE `Reviews`
-  ADD CONSTRAINT `reviews_product_fk` FOREIGN KEY (`artikelnr`) REFERENCES `Products` (`artikelnr`) ON DELETE CASCADE,
-  ADD CONSTRAINT `reviews_user_fk` FOREIGN KEY (`user_id`) REFERENCES `User` (`user_id`) ON DELETE CASCADE;
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_product_fk` FOREIGN KEY (`artikelnr`) REFERENCES `products` (`artikelnr`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_user_fk` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
