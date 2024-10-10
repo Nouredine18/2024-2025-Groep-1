@@ -2,16 +2,16 @@
 include 'connect.php';
 session_start();
 
-// Get the product ID from the query parameter
+// Haal het product-ID op uit de queryparameter
 $artikelnr = isset($_GET['artikelnr']) ? intval($_GET['artikelnr']) : 0;
 
-// Initialize variables
+// Initialiseer variabelen
 $product = null;
 $colors = [];
 $sizes = [];
 $reviews = [];
 
-// Fetch product details
+// Haal productdetails op
 $sql_product = "SELECT * FROM products WHERE artikelnr = ?";
 $stmt_product = $conn->prepare($sql_product);
 $stmt_product->bind_param("i", $artikelnr);
@@ -21,7 +21,7 @@ if ($result_product->num_rows > 0) {
     $product = $result_product->fetch_assoc();
 }
 
-// Fetch available colors and sizes for the product
+// Haal beschikbare kleuren en maten voor het product op
 $sql_variants = "SELECT DISTINCT kleur, maat FROM productvariant WHERE artikelnr = ?";
 $stmt_variants = $conn->prepare($sql_variants);
 $stmt_variants->bind_param("i", $artikelnr);
@@ -32,7 +32,7 @@ while ($row = $result_variants->fetch_assoc()) {
     $sizes[] = $row['maat'];
 }
 
-// Fetch reviews for the product
+// Haal beoordelingen voor het product op
 $sql_reviews = "SELECT r.review_text, r.rating, r.review_date, u.naam FROM reviews r JOIN user u ON r.user_id = u.user_id WHERE r.artikelnr = ? ORDER BY r.review_date DESC";
 $stmt_reviews = $conn->prepare($sql_reviews);
 $stmt_reviews->bind_param("i", $artikelnr);
@@ -42,19 +42,19 @@ while ($row = $result_reviews->fetch_assoc()) {
     $reviews[] = $row;
 }
 
-// Handle review submission
+// Verwerk het indienen van een beoordeling
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST['rating'])) {
     $review_text = $_POST['review_text'];
     $rating = intval($_POST['rating']);
-    $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
+    $user_id = $_SESSION['user_id']; // Aannemende dat user_id in de sessie is opgeslagen
 
     $sql_insert_review = "INSERT INTO reviews (user_id, artikelnr, review_text, rating) VALUES (?, ?, ?, ?)";
     $stmt_insert_review = $conn->prepare($sql_insert_review);
     $stmt_insert_review->bind_param("iisi", $user_id, $artikelnr, $review_text, $rating);
     $stmt_insert_review->execute();
 
-    // Refresh the page to show the new review
-    header("Location: product.php?artikelnr=$artikelnr");
+    // Vernieuw de pagina om de nieuwe beoordeling te tonen
+    header("Location: info_product.php?artikelnr=$artikelnr");
     exit;
 }
 ?>
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($product['naam'] ?? 'Product'); ?></title>
     <style>
-        /* Global Styling */
+        /* Algemene styling */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             flex-direction: row;
         }
 
-        /* Gallery Styling */
+        /* Galerij styling */
         .gallery {
             display: flex;
             flex-direction: column;
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
         }
 
-        /* Product Details Styling */
+        /* Productdetails styling */
         .product-details {
             margin-left: 40px;
             flex: 1;
@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             transform: scale(1.1);
         }
 
-        /* Cart Button */
+        /* Winkelwagenknop */
         .cart-button {
             display: inline-block;
             background-color: #000;
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             margin-bottom: 20px;
         }
 
-        /* Modal styles */
+        /* Modal styling */
         .modal {
             display: none;
             position: fixed;
@@ -258,14 +258,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             cursor: pointer;
         }
 
-        /* Review Section */
+        /* Beoordelingssectie */
         .reviews {
             margin-top: 40px;
         }
 
         .review {
             border-bottom: 1px solid #ddd;
-            padding: 10px 0;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .review h4 {
@@ -275,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
         }
 
         .review p {
-            margin: 5px 0;
+            margin: 0;
             font-size: 14px;
             color: #555;
         }
@@ -283,13 +286,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
         .review .rating {
             background-color: #f39c12;
             color: white;
-            padding: 2px 10px;
+            padding: 5px 10px;
             border-radius: 50px;
             font-size: 12px;
+            display: inline-block;
+        }
+
+        .review small {
+            color: #999;
         }
 
         .review-form {
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .review-form textarea {
@@ -300,6 +311,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             border-radius: 5px;
             font-size: 14px;
             margin-bottom: 10px;
+        }
+
+        .review-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
         }
 
         .review-form button {
@@ -316,6 +334,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             background-color: #333;
             transform: translateY(-2px);
         }
+
+        /* Terugknop */
+        .go-back-button {
+            display: inline-block;
+            background-color: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .go-back-button:hover {
+            background-color: #bbb;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 
@@ -323,59 +360,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
 
 <div class="container">
     <div class="product-info">
-        <!-- Main Image -->
+        <!-- Hoofdafbeelding -->
         <div class="main-image">
-            <img src="directory/<?php echo !empty($product['directory']) ? htmlspecialchars($product['directory']) : 'default.jpg'; ?>" alt="Main Product Image">
+            <img src="directory/<?php echo !empty($product['directory']) ? htmlspecialchars($product['directory']) : 'default.jpg'; ?>" alt="Hoofdafbeelding product">
         </div>
 
-        <!-- Product Details -->
+        <!-- Productdetails -->
         <div class="product-details">
             <div class="rating">★ Goede beoordeling</div>
             <h1><?php echo htmlspecialchars($product['naam'] ?? 'Product'); ?></h1>
             <p class="price">€<?php echo htmlspecialchars($product['prijs'] ?? ''); ?></p>
 
-            <!-- Color Options -->
+            <!-- Kleuropties -->
             <div class="colors">
                 <?php if (!empty($colors)): ?>
                     <?php foreach ($colors as $color): ?>
                         <div class="color-option" data-color="<?php echo htmlspecialchars($color); ?>" style="background-color: <?php echo htmlspecialchars($color); ?>;"></div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>No colors available.</p>
+                    <p>Geen kleuren beschikbaar.</p>
                 <?php endif; ?>
             </div>
 
-            <!-- Size Options -->
+            <!-- Maatopties -->
             <div class="sizes">
                 <?php if (!empty($sizes)): ?>
                     <?php foreach ($sizes as $size): ?>
                         <button type="button"><?php echo htmlspecialchars($size); ?></button>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p>No sizes available.</p>
+                    <p>Geen maten beschikbaar.</p>
                 <?php endif; ?>
             </div>
 
-            <!-- Add to Cart Button -->
-            <form action="add_to_cart.php" method="post">
+            <!-- Winkelwagenknop -->
+            <form action="add_to_cart.php" method="post" id="add-to-cart-form">
                 <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
                 <input type="hidden" name="kleur" id="selected-color" value="">
                 <input type="hidden" name="maat" id="selected-size" value="">
                 <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
                 <button type="submit" class="cart-button">Voeg toe aan winkelmandje</button>
             </form>
+
+            <!-- Terugknop -->
+            <button class="go-back-button" onclick="window.location.href='index.php'">Ga terug</button>
         </div>
     </div>
 
-    <!-- Product Description -->
+    <!-- Productbeschrijving -->
     <div class="description">
-        <h2>Description</h2>
-        <p><?php echo htmlspecialchars($product['product_information'] ?? 'No description available.'); ?></p>
+        <h2>Beschrijving</h2>
+        <p><?php echo htmlspecialchars($product['product_information'] ?? 'Geen beschrijving beschikbaar.'); ?></p>
     </div>
 
-    <!-- Reviews Section -->
+    <!-- Beoordelingssectie -->
     <div class="reviews">
-        <h2>Reviews</h2>
+        <h2>Beoordelingen</h2>
         <?php if (!empty($reviews)): ?>
             <?php foreach ($reviews as $review): ?>
                 <div class="review">
@@ -385,24 +425,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>No reviews yet. Be the first to review this product!</p>
+            <p>Geen beoordelingen. Wees de eerste om dit product te beoordelen!</p>
         <?php endif; ?>
     </div>
 
-    <!-- Review Form -->
+    <!-- Beoordelingsformulier -->
     <div class="review-form">
-        <h2>Write a Review</h2>
+        <h2>Schrijf een beoordeling</h2>
         <form action="" method="post">
-            <textarea name="review_text" placeholder="Write your review here..." required></textarea>
+            <textarea name="review_text" placeholder="Schrijf hier uw beoordeling..." required></textarea>
             <select name="rating" required>
-                <option value="">Select Rating</option>
-                <option value="1">1 - Poor</option>
-                <option value="2">2 - Fair</option>
-                <option value="3">3 - Good</option>
-                <option value="4">4 - Very Good</option>
-                <option value="5">5 - Excellent</option>
+                <option value="">Selecteer beoordeling</option>
+                <option value="1">1 - Slecht</option>
+                <option value="2">2 - Matig</option>
+                <option value="3">3 - Goed</option>
+                <option value="4">4 - Zeer goed</option>
+                <option value="5">5 - Uitstekend</option>
             </select>
-            <button type="submit">Submit Review</button>
+            <button type="submit">Beoordeling indienen</button>
         </form>
     </div>
 </div>
@@ -411,12 +451,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
 <div id="myModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <p>Please select both a color and a size before adding to cart.</p>
+        <p>Selecteer zowel een kleur als een maat voordat u toevoegt aan het winkelmandje.</p>
     </div>
 </div>
 
 <script>
-    // JavaScript to handle color and size selection
+    // JavaScript om kleur- en maatselectie te verwerken
     document.querySelectorAll('.colors div').forEach(colorDiv => {
         colorDiv.addEventListener('click', function () {
             document.querySelectorAll('.colors div').forEach(div => div.style.border = '2px solid #ddd');
@@ -433,8 +473,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
         });
     });
 
-    // Ensure the form is only submitted if a color and size are selected
-    document.querySelector('form').addEventListener('submit', function (event) {
+    // Zorg ervoor dat het formulier alleen wordt ingediend als een kleur en maat zijn geselecteerd
+    document.querySelector('.cart-button').addEventListener('click', function (event) {
         const selectedColor = document.getElementById('selected-color').value;
         const selectedSize = document.getElementById('selected-size').value;
         if (!selectedColor || !selectedSize) {
@@ -443,12 +483,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
         }
     });
 
-    // Close the modal
+    // Sluit de modal
     document.querySelector('.close').addEventListener('click', function () {
         document.getElementById('myModal').style.display = "none";
     });
 
-    // Close the modal when clicking outside of it
+    // Sluit de modal bij klikken buiten de modal
     window.addEventListener('click', function (event) {
         if (event.target == document.getElementById('myModal')) {
             document.getElementById('myModal').style.display = "none";

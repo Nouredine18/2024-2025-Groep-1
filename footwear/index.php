@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id'])) {
         // Haal het aantal artikelen op uit de database, of zet het op 0 als er geen artikelen zijn
         $_SESSION['cart_count'] = $row_count['total_items'] ? $row_count['total_items'] : 0;
     } else {
-        // Fallback to 0 if the query fails
+        // Terugvallen op 0 als de query mislukt
         $_SESSION['cart_count'] = 0;
     }
 }
@@ -31,7 +31,7 @@ if (isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FootWear | Home</title>
     <style>
-        /* General Styles */
+        /* Algemene stijlen */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -73,9 +73,9 @@ if (isset($_SESSION['user_id'])) {
             padding: 40px 20px;
         }
 
-        /* Hero Section Styles */
+        /* Hero sectie stijlen */
         .hero {
-            background-color: #007bff; /* Hero section background */
+            background-color: #007bff; /* Achtergrond van de hero sectie */
             color: white;
             text-align: center;
             padding: 100px 20px;
@@ -91,7 +91,7 @@ if (isset($_SESSION['user_id'])) {
             margin-bottom: 30px;
         }
 
-        /* Product Grid Styles */
+        /* Product grid stijlen */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -105,19 +105,19 @@ if (isset($_SESSION['user_id'])) {
             padding: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
-            height: 420px; /* Adjusted height for uniformity */
+            height: 420px; /* Aangepaste hoogte voor uniformiteit */
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Space out content evenly */
+            justify-content: space-between; /* Verdeel de inhoud gelijkmatig */
         }
 
         .product-item:hover {
-            transform: scale(1.05); /* Scale effect on hover */
+            transform: scale(1.05); /* Schaal effect bij hover */
         }
 
         .product-item h3 {
             margin: 10px 0;
-            font-size: 1.5em; /* Consistent title size */
+            font-size: 1.5em; /* Consistente titelgrootte */
         }
 
         .product-item p {
@@ -125,14 +125,14 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .product-image {
-            width: 100%; /* Make images responsive */
-            height: 200px; /* Fixed height for uniformity */
-            object-fit: cover; /* Ensure images cover the area without distortion */
+            width: 100%; /* Maak afbeeldingen responsief */
+            height: 200px; /* Vaste hoogte voor uniformiteit */
+            object-fit: cover; /* Zorg ervoor dat afbeeldingen het gebied zonder vervorming bedekken */
             border-radius: 5px;
             margin-bottom: 10px;
         }
 
-        /* Cart Item Styles */
+        /* Winkelwagen item stijlen */
         .cart-items {
             max-width: 800px;
             margin: 0 auto;
@@ -142,7 +142,7 @@ if (isset($_SESSION['user_id'])) {
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Table Styles */
+        /* Tabel stijlen */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -164,40 +164,40 @@ if (isset($_SESSION['user_id'])) {
             background-color: #f1f1f1;
         }
 
-        /* Updated Button Styles */
-        button, .button { /* Target both button and input submit types */
-            background-color: blue; /* Green background */
-            color: white; /* White text */
+        /* Bijgewerkte knopstijlen */
+        button, .button { /* Richt zowel op button als input submit types */
+            background-color: blue; /* Blauwe achtergrond */
+            color: white; /* Witte tekst */
             border: none;
-            padding: 10px 20px; /* Increased padding */
+            padding: 10px 20px; /* Verhoogde padding */
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px; /* Increased font size */
-            transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effects */
-            margin-top: 10px; /* Spacing above the button */
+            font-size: 16px; /* Verhoogde lettergrootte */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* Soepele overgang voor hover effecten */
+            margin-top: 10px; /* Ruimte boven de knop */
         }
 
         button:hover, .button:hover {
-            background-color: lightskyblue; /* Darker green on hover */
-            transform: translateY(-2px); /* Slight lifting effect */
+            background-color: lightskyblue; /* Donkerder blauw bij hover */
+            transform: translateY(-2px); /* Licht liftend effect */
         }
 
-        /* Updated Quantity Input Styles */
+        /* Bijgewerkte hoeveelheid invoerstijlen */
         .quantity-input {
-            width: 60px; /* Fixed width */
-            padding: 8px; /* More padding for better appearance */
+            width: 60px; /* Vaste breedte */
+            padding: 8px; /* Meer padding voor betere uitstraling */
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-right: 10px; /* Spacing to the right */
-            font-size: 16px; /* Match button font size */
-            text-align: center; /* Center the quantity number */
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow for effect */
+            margin-right: 10px; /* Ruimte aan de rechterkant */
+            font-size: 16px; /* Match knop lettergrootte */
+            text-align: center; /* Centreer het aantal nummer */
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Lichte schaduw voor effect */
         }
 
         .quantity-input:focus {
             outline: none;
-            border-color: #007bff; /* Blue border when focused */
-            box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5); /* Subtle blue glow on focus */
+            border-color: #007bff; /* Blauwe rand bij focus */
+            box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5); /* Subtiele blauwe gloed bij focus */
         }
 
         .total {
@@ -226,29 +226,29 @@ if (isset($_SESSION['user_id'])) {
             margin: 0;
         }
 
-        /* Responsive Design */
+        /* Responsief ontwerp */
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5em;
             }
 
             .container {
-                width: 90%; /* Full width on smaller screens */
+                width: 90%; /* Volledige breedte op kleinere schermen */
             }
 
-            /* Ensure grid adapts to mobile screens */
+            /* Zorg ervoor dat het raster zich aanpast aan mobiele schermen */
             .product-grid {
-                grid-template-columns: 1fr; /* Full-width on small screens */
+                grid-template-columns: 1fr; /* Volledige breedte op kleine schermen */
             }
         }
 
             .social-media ul {
-                list-style: none; /* Remove bullets */
+                list-style: none; /* Verwijder bullets */
                 padding: 0;
-                margin: 0; /* Remove any margins */
-                display: flex; /* Make items align horizontally */
-                justify-content: center; /* Center the buttons horizontally */
-                gap: 15px; /* Space between the buttons */
+                margin: 0; /* Verwijder eventuele marges */
+                display: flex; /* Maak items horizontaal uitlijnen */
+                justify-content: center; /* Centreer de knoppen horizontaal */
+                gap: 15px; /* Ruimte tussen de knoppen */
             }
 
             .social-media ul li {
@@ -257,19 +257,19 @@ if (isset($_SESSION['user_id'])) {
 
             .social-media ul li a {
                 padding: 10px 20px;
-                background-color: #007bff; /* Blue color */
-                color: white; /* White text */
-                text-decoration: none; /* Remove underline */
+                background-color: #007bff; /* Blauwe kleur */
+                color: white; /* Witte tekst */
+                text-decoration: none; /* Verwijder onderstreping */
                 border-radius: 5px;
                 font-weight: bold;
                 transition: background-color 0.3s ease;
-                display: flex; /* Make the anchor a flex container */
-                align-items: center; /* Center items vertically */
-                gap: 8px; /* Space between icon and text */
+                display: flex; /* Maak de anker een flex-container */
+                align-items: center; /* Centreer items verticaal */
+                gap: 8px; /* Ruimte tussen pictogram en tekst */
             }
 
             .social-media ul li a:hover {
-                background-color: #0056b3; /* Darker blue on hover */
+                background-color: #0056b3; /* Donkerder blauw bij hover */
             }
 
     </style>
@@ -281,14 +281,14 @@ if (isset($_SESSION['user_id'])) {
         <ul>
             <li><a href="index.php">Home</a></li>
             <?php if (isset($_SESSION['user_id'])): ?>
-                <li><a href="cart.php">Cart (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
-                <li><a href="logout.php">Logout</a></li>
+                <li><a href="cart.php">Winkelwagen (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
+                <li><a href="logout.php">Uitloggen</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
                     <li><a href="adminPanel.php">Admin Panel</a></li>
                 <?php endif; ?>
-                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
+                <li><a href="#">Welkom, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>
-                <li><a href="login_register.php">Login/Register</a></li>
+                <li><a href="login_register.php">Inloggen/Registreren</a></li>
             <?php endif; ?>
         </ul>
     </nav>
@@ -296,48 +296,48 @@ if (isset($_SESSION['user_id'])) {
 
 <main>
     <div class="hero">
-        <h1>Welcome to FootWear | BE</h1>
-        <p>Only the best of the best for our PHP lovers!</p>
+        <h1>Welkom bij FootWear | BE</h1>
+        <p>Alleen het beste van het beste voor onze PHP-liefhebbers!</p>
     </div>
 
     <div class="product-grid">
         <?php
-        // SQL-query to fetch products
+        // SQL-query om producten op te halen
         $sql = "SELECT artikelnr, naam, prijs, directory FROM Products";
         $result = $conn->query($sql);
 
-        if ($result && $result->num_rows > 0):  // Check if query returned results
+        if ($result && $result->num_rows > 0):  // Controleer of de query resultaten heeft opgeleverd
             while ($row = $result->fetch_assoc()): 
         ?>
             <div class="product-item"> <!-- Product item container -->
-                <!-- Display product image -->
+                <!-- Toon productafbeelding -->
                 <?php if (!empty($row['directory'])): ?>
                     <img src="directory/<?php echo $row['directory']; ?>" alt="<?php echo $row['naam']; ?>" class="product-image">
                 <?php else: ?>
-                    <img src="directory/default.jpg" alt="No image available" class="product-image">
+                    <img src="directory/default.jpg" alt="Geen afbeelding beschikbaar" class="product-image">
                 <?php endif; ?>
                 
-                <h3><?php echo $row['naam']; ?></h3> <!-- Display the product name -->
-                <p>Price: €<?php echo $row['prijs']; ?></p> <!-- Display the product price -->
-                <form action="add_to_cart.php" method="post"> <!-- Form to add product to cart -->
-                    <input type="hidden" name="artikelnr" value="<?php echo $row['artikelnr']; ?>"> <!-- Hidden input for article number -->
+                <h3><?php echo $row['naam']; ?></h3> <!-- Toon de productnaam -->
+                <p>Prijs: €<?php echo $row['prijs']; ?></p> <!-- Toon de productprijs -->
+                <form action="add_to_cart.php" method="post"> <!-- Formulier om product aan winkelwagen toe te voegen -->
+                    <input type="hidden" name="artikelnr" value="<?php echo $row['artikelnr']; ?>"> <!-- Verborgen invoer voor artikelnummer -->
                 </form>
-                <a href="info_product.php?artikelnr=<?php echo $row['artikelnr']; ?>" class="button">See More</a> <!-- See More button -->
+                <a href="info_product.php?artikelnr=<?php echo $row['artikelnr']; ?>" class="button">Meer zien</a> <!-- Meer zien knop -->
             </div>
         <?php 
             endwhile;
         else: 
-            echo "<p>No products available at the moment.</p>";
+            echo "<p>Momenteel geen producten beschikbaar.</p>";
         endif;
         ?>
     </div>
 </main>
 
 <footer>
-    <p>&copy; 2024 FootWear. All rights reserved.</p>
+    <p>&copy; 2024 FootWear. Alle rechten voorbehouden.</p>
 
     <div class="social-media">
-        <h3>Follow us on:</h3>
+        <h3>Volg ons op:</h3>
         <ul>
             <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a></li>
             <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
