@@ -21,15 +21,14 @@ if ($result_product->num_rows > 0) {
     $product = $result_product->fetch_assoc();
 }
 
-// Haal beschikbare kleuren en maten voor het product op
-$sql_variants = "SELECT DISTINCT kleur, maat FROM ProductVariant WHERE artikelnr = ?";
-$stmt_variants = $conn->prepare($sql_variants);
-$stmt_variants->bind_param("i", $artikelnr);
-$stmt_variants->execute();
-$result_variants = $stmt_variants->get_result();
-while ($row = $result_variants->fetch_assoc()) {
+// Haal beschikbare kleuren voor het product op
+$sql_colors = "SELECT DISTINCT kleur FROM ProductVariant WHERE artikelnr = ?";
+$stmt_colors = $conn->prepare($sql_colors);
+$stmt_colors->bind_param("i", $artikelnr);
+$stmt_colors->execute();
+$result_colors = $stmt_colors->get_result();
+while ($row = $result_colors->fetch_assoc()) {
     $colors[] = $row['kleur'];
-    $sizes[] = $row['maat'];
 }
 
 // Haal beoordelingen voor het product op
@@ -384,13 +383,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
 
             <!-- Maatopties -->
             <div class="sizes">
-                <?php if (!empty($sizes)): ?>
-                    <?php foreach ($sizes as $size): ?>
-                        <button type="button"><?php echo htmlspecialchars($size); ?></button>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p>Geen maten beschikbaar.</p>
-                <?php endif; ?>
+                <p>Geen maten beschikbaar.</p>
             </div>
 
             <!-- Winkelwagenknop -->
@@ -462,14 +455,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
             document.querySelectorAll('.colors div').forEach(div => div.style.border = '2px solid #ddd');
             this.style.border = '2px solid #333';
             document.getElementById('selected-color').value = this.dataset.color;
-        });
-    });
 
-    document.querySelectorAll('.sizes button').forEach(sizeButton => {
-        sizeButton.addEventListener('click', function () {
-            document.querySelectorAll('.sizes button').forEach(button => button.style.border = '2px solid #ddd');
-            this.style.border = '2px solid #333';
-            document.getElementById('selected-size').value = this.textContent;
+            // Haal beschikbare maten op voor de geselecteerde kleur
+            fetch(`get_sizes.php?artikelnr=<?php echo $artikelnr; ?>&kleur=${this.dataset.color}`)
+                .then(response => response.json())
+                .then(data => {
+                    const sizesContainer = document.querySelector('.sizes');
+                    sizesContainer.innerHTML = ''; // Maak de huidige maten leeg
+                    if (data.length > 0) {
+                        data.forEach(size => {
+                            const sizeButton = document.createElement('button');
+                            sizeButton.textContent = size;
+                            sizeButton.addEventListener('click', function () {
+                                document.querySelectorAll('.sizes button').forEach(button => button.style.border = '2px solid #ddd');
+                                this.style.border = '2px solid #333';
+                                document.getElementById('selected-size').value = this.textContent;
+                            });
+                            sizesContainer.appendChild(sizeButton);
+                        });
+                    } else {
+                        sizesContainer.innerHTML = '<p>Geen maten beschikbaar.</p>';
+                    }
+                });
         });
     });
 

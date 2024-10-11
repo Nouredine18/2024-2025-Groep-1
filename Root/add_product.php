@@ -1,5 +1,4 @@
 <?php
-// NOG NIET KLAAR! --VAN NOUREDINE--
 // Verbind met de database
 include 'connect.php'; 
 session_start(); // Start de sessie
@@ -16,94 +15,155 @@ $target_dir = "directory/"; // De map waar geüploade bestanden worden opgeslage
 
 // Controleer of het formulier is ingediend
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Controleer of er een bestand is geüpload en dat er geen fouten zijn
-    if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
-        $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION)); // Haal de bestandsextensie op en maak deze klein
+    // Controleer of het formulier voor het toevoegen van een nieuw product is ingediend
+    if (isset($_POST['submit'])) {
+        // Controleer of er een bestand is geüpload en dat er geen fouten zijn
+        if (isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0) {
+            $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION)); // Haal de bestandsextensie op en maak deze klein
 
-        // Controleer of het geüploade bestand een afbeelding is
-        $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-        if ($check !== false) {
-            echo "Bestand is een afbeelding - " . htmlspecialchars($check["mime"]) . ".";
-            $uploadOk = 1; // Zet uploadOk op 1 om aan te geven dat upload kan doorgaan
-        } else {
-            echo "Bestand is geen afbeelding.";
-            $uploadOk = 0; // Zet uploadOk op 0 om upload te blokkeren
-        }
+            // Controleer of het geüploade bestand een afbeelding is
+            $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+            if ($check !== false) {
+                echo "Bestand is een afbeelding - " . htmlspecialchars($check["mime"]) . ".";
+                $uploadOk = 1; // Zet uploadOk op 1 om aan te geven dat upload kan doorgaan
+            } else {
+                echo "Bestand is geen afbeelding.";
+                $uploadOk = 0; // Zet uploadOk op 0 om upload te blokkeren
+            }
 
-        // Toestaan van bepaalde bestandsformaten
-        if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) { // Controleer op toegestane types
-            echo "Sorry, alleen JPG, JPEG, PNG, GIF & WEBP bestanden zijn toegestaan.";
-            $uploadOk = 0; // Zet uploadOk op 0 om upload te blokkeren
-        }
+            // Toestaan van bepaalde bestandsformaten
+            if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) { // Controleer op toegestane types
+                echo "Sorry, alleen JPG, JPEG, PNG, GIF & WEBP bestanden zijn toegestaan.";
+                $uploadOk = 0; // Zet uploadOk op 0 om upload te blokkeren
+            }
 
-        // Controleer of uploadOk is ingesteld op 0 door een fout
-        if ($uploadOk == 0) {
-            echo "Sorry, uw bestand is niet geüpload.";
-        } else {
-            // Genereer een unieke bestandsnaam om overschrijving te voorkomen
-            $unique_filename = uniqid('', true) . '.' . $imageFileType; // Unieke bestandsnaam genereren
-            $target_file = $target_dir . $unique_filename; // Volledige pad voor het bestand
+            // Controleer of uploadOk is ingesteld op 0 door een fout
+            if ($uploadOk == 0) {
+                echo "Sorry, uw bestand is niet geüpload.";
+            } else {
+                // Genereer een unieke bestandsnaam om overschrijving te voorkomen
+                $unique_filename = uniqid('', true) . '.' . $imageFileType; // Unieke bestandsnaam genereren
+                $target_file = $target_dir . $unique_filename; // Volledige pad voor het bestand
 
-            // Probeer het bestand te uploaden
-            if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "Het bestand " . htmlspecialchars(basename($unique_filename)) . " is geüpload.";
+                // Probeer het bestand te uploaden
+                if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+                    echo "Het bestand " . htmlspecialchars(basename($unique_filename)) . " is geüpload.";
 
-                // Controleer of de formuliergegevens zijn ingesteld
-                if (isset($_POST['naam'], $_POST['prijs'], $_POST['type_of_shoe'], $_POST['kleur'], $_POST['maat'], $_POST['stock'])) {
-                    // Sanitize en wijs invoerwaarden toe
-                    $naam = htmlspecialchars($_POST['naam']); // Productnaam
-                    $prijs = floatval($_POST['prijs']); // Productprijs, omgezet naar een float
-                    $type_of_shoe = htmlspecialchars($_POST['type_of_shoe']); // Type schoen
-                    $kleur = htmlspecialchars($_POST['kleur']); // Kleur variant
-                    $maat = intval($_POST['maat']); // Maat variant, omgezet naar een integer
-                    $stock = intval($_POST['stock']); // Voorraad variant, omgezet naar een integer
+                    // Controleer of de formuliergegevens zijn ingesteld
+                    if (isset($_POST['naam'], $_POST['prijs'], $_POST['type_of_shoe'], $_POST['kleur'], $_POST['maat'], $_POST['stock'])) {
+                        // Sanitize en wijs invoerwaarden toe
+                        $naam = htmlspecialchars($_POST['naam']); // Productnaam
+                        $prijs = floatval($_POST['prijs']); // Productprijs, omgezet naar een float
+                        $type_of_shoe = htmlspecialchars($_POST['type_of_shoe']); // Type schoen
+                        $kleuren = $_POST['kleur']; // Array van kleuren
+                        $maten = $_POST['maat']; // Array van maten
+                        $stock = intval($_POST['stock']); // Voorraad variant, omgezet naar een integer
 
-                    // Voeg product toe aan de Products tabel
-                    $insert_product_sql = "INSERT INTO Products (naam, prijs, type_of_shoe, directory) VALUES (?, ?, ?, ?)";
-                    $stmt_product = $conn->prepare($insert_product_sql); // Voorbereiden van de SQL-instructie
-                    $stmt_product->bind_param("sdss", $naam, $prijs, $type_of_shoe, $unique_filename); // Binden van parameters aan de instructie
+                        // Controleer of het product al bestaat
+                        $check_product_sql = "SELECT artikelnr FROM Products WHERE naam = ? AND type_of_shoe = ?";
+                        $stmt_check_product = $conn->prepare($check_product_sql);
+                        $stmt_check_product->bind_param("ss", $naam, $type_of_shoe);
+                        $stmt_check_product->execute();
+                        $result_check_product = $stmt_check_product->get_result();
 
-                    if ($stmt_product->execute()) {
-                        // Verkrijg het laatst ingevoerde productnummer
-                        $artikelnr = $stmt_product->insert_id;
+                        if ($result_check_product->num_rows > 0) {
+                            // Product bestaat al, haal het artikelnr op
+                            $row = $result_check_product->fetch_assoc();
+                            $artikelnr = $row['artikelnr'];
+                        } else {
+                            // Voeg product toe aan de Products tabel
+                            $insert_product_sql = "INSERT INTO Products (naam, prijs, type_of_shoe, directory) VALUES (?, ?, ?, ?)";
+                            $stmt_product = $conn->prepare($insert_product_sql); // Voorbereiden van de SQL-instructie
+                            $stmt_product->bind_param("sdss", $naam, $prijs, $type_of_shoe, $unique_filename); // Binden van parameters aan de instructie
 
-                        // Voeg productvariant toe aan de ProductVariant tabel
+                            if ($stmt_product->execute()) {
+                                // Verkrijg het laatst ingevoerde productnummer
+                                $artikelnr = $stmt_product->insert_id;
+                            } else {
+                                // Fout bij het toevoegen van het product
+                                echo "Fout bij het toevoegen van het product: " . $stmt_product->error; 
+                                exit();
+                            }
+
+                            // Sluit de product statement
+                            $stmt_product->close();
+                        }
+
+                        // Voeg productvarianten toe aan de ProductVariant tabel
                         $insert_variant_sql = "INSERT INTO ProductVariant (artikelnr, variantnr, kleur, maat, stock, bought_counter) VALUES (?, ?, ?, ?, ?, ?)";
-                        $variantnr = 1; // Dit kan worden aangepast voor meerdere varianten
+                        $stmt_variant = $conn->prepare($insert_variant_sql); // Voorbereiden van de SQL-instructie voor de variant
+                        $variantnr = 1; // Start variantnummer
                         $bought_counter = 0; // Aanvankelijke waarde van de verkochte teller
 
-                        $stmt_variant = $conn->prepare($insert_variant_sql); // Voorbereiden van de SQL-instructie voor de variant
-                        $stmt_variant->bind_param("iissii", $artikelnr, $variantnr, $kleur, $maat, $stock, $bought_counter); // Binden van parameters aan de instructie
-                        
-                        if ($stmt_variant->execute()) {
-                            // Als de variant succesvol is toegevoegd
-                            echo "Product en variant zijn succesvol toegevoegd!"; // Bevestiging dat product is toegevoegd
-                        } else {
-                            // Fout bij het toevoegen van de productvariant
-                            echo "Fout bij het toevoegen van de productvariant: " . $stmt_variant->error; 
+                        foreach ($kleuren as $kleur) {
+                            foreach ($maten as $maat) {
+                                $stmt_variant->bind_param("iissii", $artikelnr, $variantnr, $kleur, $maat, $stock, $bought_counter); // Binden van parameters aan de instructie
+                                if ($stmt_variant->execute()) {
+                                    echo "Variant $variantnr toegevoegd: Kleur $kleur, Maat $maat, Stock $stock.<br>";
+                                    $variantnr++; // Verhoog variantnummer voor de volgende variant
+                                } else {
+                                    echo "Fout bij het toevoegen van de variant: " . $stmt_variant->error . "<br>";
+                                }
+                            }
                         }
 
                         // Sluit de variant statement
                         $stmt_variant->close();
                     } else {
-                        // Fout bij het toevoegen van het product
-                        echo "Fout bij het toevoegen van het product: " . $stmt_product->error; 
+                        // Ongeldige invoer
+                        echo "Ongeldige invoer."; 
                     }
-
-                    // Sluit de product statement
-                    $stmt_product->close();
                 } else {
-                    // Ongeldige invoer
-                    echo "Ongeldige invoer."; 
+                    // Fout bij het uploaden van het bestand
+                    echo "Sorry, er was een fout bij het uploaden van uw bestand.";
                 }
-            } else {
-                // Fout bij het uploaden van het bestand
-                echo "Sorry, er was een fout bij het uploaden van uw bestand.";
             }
+        } else {
+            // Fout bij het uploaden van het bestand
+            echo "Bestand upload fout. Probeer het opnieuw. Foutcode: " . $_FILES["fileToUpload"]["error"];
         }
-    } else {
-        // Fout bij het uploaden van het bestand
-        echo "Bestand upload fout. Probeer het opnieuw. Foutcode: " . $_FILES["fileToUpload"]["error"];
+    }
+
+    // Controleer of het formulier voor het toevoegen van varianten aan een bestaand product is ingediend
+    if (isset($_POST['add_variant'])) {
+        if (isset($_POST['existing_product'], $_POST['kleur'], $_POST['maat'], $_POST['stock'])) {
+            $artikelnr = intval($_POST['existing_product']);
+            $kleuren = $_POST['kleur'];
+            $maten = $_POST['maat'];
+            $stock = intval($_POST['stock']);
+
+            // Voeg productvarianten toe aan de ProductVariant tabel
+            $insert_variant_sql = "INSERT INTO ProductVariant (artikelnr, variantnr, kleur, maat, stock, bought_counter) VALUES (?, ?, ?, ?, ?, ?)";
+            $stmt_variant = $conn->prepare($insert_variant_sql); // Voorbereiden van de SQL-instructie voor de variant
+
+            // Haal het hoogste variantnummer op voor het product
+            $max_variant_sql = "SELECT MAX(variantnr) AS max_variantnr FROM ProductVariant WHERE artikelnr = ?";
+            $stmt_max_variant = $conn->prepare($max_variant_sql);
+            $stmt_max_variant->bind_param("i", $artikelnr);
+            $stmt_max_variant->execute();
+            $result_max_variant = $stmt_max_variant->get_result();
+            $row_max_variant = $result_max_variant->fetch_assoc();
+            $variantnr = $row_max_variant['max_variantnr'] + 1; // Start variantnummer vanaf het hoogste + 1
+            $bought_counter = 0; // Aanvankelijke waarde van de verkochte teller
+
+            foreach ($kleuren as $kleur) {
+                foreach ($maten as $maat) {
+                    $stmt_variant->bind_param("iissii", $artikelnr, $variantnr, $kleur, $maat, $stock, $bought_counter); // Binden van parameters aan de instructie
+                    if ($stmt_variant->execute()) {
+                        echo "Variant $variantnr toegevoegd: Kleur $kleur, Maat $maat, Stock $stock.<br>";
+                        $variantnr++; // Verhoog variantnummer voor de volgende variant
+                    } else {
+                        echo "Fout bij het toevoegen van de variant: " . $stmt_variant->error . "<br>";
+                    }
+                }
+            }
+
+            // Sluit de variant statement
+            $stmt_variant->close();
+        } else {
+            // Ongeldige invoer
+            echo "Ongeldige invoer.";
+        }
     }
 }
 
@@ -240,12 +300,22 @@ $conn->close();
         <label for="type_of_shoe">Type Schoen:</label>
         <input type="text" name="type_of_shoe" id="type_of_shoe" required> <!-- Invoerveld voor type schoen -->
 
-        <h3>Productvariant:</h3> <!-- Sectie voor productvariant -->
+        <h3>Productvarianten:</h3> <!-- Sectie voor productvarianten -->
+        
         <label for="kleur">Kleur:</label>
-        <input type="text" name="kleur" id="kleur" required> <!-- Invoerveld voor kleur -->
+        <select name="kleur[]" id="kleur" multiple required> <!-- Meerdere kleuren selecteren -->
+            <option value="black">Black</option>
+            <option value="white">White</option>
+            <option value="blue">Blue</option>
+            <option value="grey">Grey</option>
+        </select>
 
         <label for="maat">Maat:</label>
-        <input type="number" name="maat" id="maat" required> <!-- Invoerveld voor maat -->
+        <select name="maat[]" id="maat" multiple required> <!-- Meerdere maten selecteren -->
+            <?php for ($i = 31; $i <= 45; $i++): ?>
+                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+            <?php endfor; ?>
+        </select>
 
         <label for="stock">Stock:</label>
         <input type="number" name="stock" id="stock" required> <!-- Invoerveld voor voorraad -->
@@ -254,6 +324,51 @@ $conn->close();
         <input type="file" name="fileToUpload" id="fileToUpload" required><br><br><br> <!-- Invoerveld voor bestand upload -->
         <button type="submit" name="submit">Product Toevoegen</button> <!-- Knop om het formulier in te dienen -->
     </form>
+
+    <!-- Formulier voor het toevoegen van varianten aan een bestaand product -->
+    <h2>Voeg Varianten Toe aan Bestaand Product</h2>
+    <form action="add_product.php" method="POST"> <!-- Formulier voor het toevoegen van varianten -->
+    <label for="existing_product">Bestaand Product:</label>
+    <select name="existing_product" id="existing_product" required>
+        <?php
+        // Verbind met de database
+        include 'connect.php';
+
+        // Haal bestaande producten op uit de database
+        $bestaanProduct = "SELECT artikelnr, naam FROM Products";
+        $resultaat = $conn->query($bestaanProduct);
+
+        // Controleer of de query succesvol was
+        if ($resultaat === false) {
+            echo "Fout bij het ophalen van bestaande producten: " . $conn->error;
+        } else {
+            while ($row = $resultaat->fetch_assoc()) {
+                echo '<option value="' . htmlspecialchars($row['artikelnr']) . '">' . htmlspecialchars($row['naam']) . '</option>';
+            }
+        }
+        ?>
+    </select>
+
+    <label for="kleur">Kleur:</label>
+    <select name="kleur[]" id="kleur" multiple required> <!-- Meerdere kleuren selecteren -->
+        <option value="black">Black</option>
+        <option value="white">White</option>
+        <option value="blue">Blue</option>
+        <option value="grey">Grey</option>
+    </select>
+
+    <label for="maat">Maat:</label>
+    <select name="maat[]" id="maat" multiple required> <!-- Meerdere maten selecteren -->
+        <?php for ($i = 31; $i <= 45; $i++): ?>
+            <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+        <?php endfor; ?>
+    </select>
+
+    <label for="stock">Stock:</label>
+    <input type="number" name="stock" id="stock" required> <!-- Invoerveld voor voorraad -->
+
+    <button type="submit" name="add_variant">Variant Toevoegen</button> <!-- Knop om het formulier in te dienen -->
+</form>
 </main>
 <footer>
     <p>&copy; 2024 FootWear. Alle rechten voorbehouden.</p>
