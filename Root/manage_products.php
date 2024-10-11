@@ -11,15 +11,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
 // Verwerk verwijderverzoek
 if (isset($_GET['delete'])) {
     $artikelnr = intval($_GET['delete']);
-    $sql_delete = "DELETE FROM Products WHERE artikelnr = ?";
-    $stmt_delete = $conn->prepare($sql_delete);
-    $stmt_delete->bind_param("i", $artikelnr);
-    $stmt_delete->execute();
-    header("Location: manage_products.php"); // Redirect om te voorkomen dat het verzoek opnieuw wordt uitgevoerd
-    exit();
+    
+    // Start transaction
+    $conn->begin_transaction();
+    
+    try {
+        // Verwijder uit Cart
+        $sql_delete = "DELETE FROM Cart WHERE artikelnr = ?";
+        $stmt_delete = $conn->prepare($sql_delete);
+        $stmt_delete->bind_param("i", $artikelnr);
+        if (!$stmt_delete->execute()) {
+            throw new Exception($stmt_delete->error);
+        }
+
+        // Verwijder uit ProductVariant
+        $sql_delete1 = "DELETE FROM ProductVariant WHERE artikelnr = ?";
+        $stmt_delete1 = $conn->prepare($sql_delete1);
+        $stmt_delete1->bind_param("i", $artikelnr);
+        if (!$stmt_delete1->execute()) {
+            throw new Exception($stmt_delete1->error);
+        }
+
+        // Verwijder uit Product
+        $sql_delete2 = "DELETE FROM Products WHERE artikelnr = ?";
+        $stmt_delete2 = $conn->prepare($sql_delete2);
+        $stmt_delete2->bind_param("i", $artikelnr);
+        if (!$stmt_delete2->execute()) {
+            throw new Exception($stmt_delete2->error);
+        }
+
+        // Commit transaction
+        $conn->commit();
+        header("Location: manage_products.php");
+        exit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "Er is een fout opgetreden: " . $e->getMessage();
+    }
 }
 
-// Initiële productquery, zal worden aangepast als er een zoekopdracht is
+// Initiële productquery
 $sql_products = "SELECT * FROM Products";
 
 // Controleer of er een zoekopdracht is
@@ -102,37 +133,6 @@ $result_products = $stmt_products->get_result();
             padding: 10px 0;
         }
 
-        .social-media {
-            margin-top: 10px;
-        }
-
-        .social-media h3 {
-            margin-bottom: 10px;
-        }
-
-        .social-media ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .social-media ul li {
-            display: inline;
-        }
-
-        .social-media ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
-            transition: color 0.3s;
-        }
-
-        .social-media ul li a:hover {
-            color: #007bff;
-        }
-
         .btn {
             display: inline-block;
             padding: 8px 12px;
@@ -173,7 +173,7 @@ $result_products = $stmt_products->get_result();
                     <li><a href="manage_products.php">Beheer Producten</a></li>
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
                 <?php endif; ?>
-                <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
+                <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
                 <li><a href="login_register.php">Login/Register</a></li>
             <?php endif; ?>
@@ -182,15 +182,12 @@ $result_products = $stmt_products->get_result();
 </header>
 
 <main>
-    <div class="hero">
-        <h1>Beheer Producten</h1>
-        <p>Hier kunt u producten bewerken, zoeken of verwijderen.</p>
-    </div>
+    <h1>Beheer Producten</h1>
+    <p>Hier kunt u producten bewerken, zoeken of verwijderen.</p>
 
     <div class="search-form">
-        <label>Product</label>
         <form action="manage_products.php" method="post">
-            <label>Zoek Artikelen</label>
+            <label for="zoekopdracht">Zoek Artikelen</label>
             <input type="text" name="zoekopdracht" placeholder="geef naam artikel" required>
             <input type="submit" name="indienen" value="Zoek">
         </form>
@@ -223,17 +220,7 @@ $result_products = $stmt_products->get_result();
 </main>
 
 <footer>
-    <p>&copy; 2024 SchoenenWijns. Alle rechten voorbehouden.</p>
-
-    <div class="social-media">
-        <h3>Volg ons op:</h3>
-        <ul>
-            <li><a href="https://www.facebook.com" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-            <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
-            <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
-            <li><a href="https://www.linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i> LinkedIn</a></li>
-        </ul>
-    </div>
+    <p>© 2024 SchoenenWijns. Alle rechten voorbehouden.</p>
 </footer>
 </body>
 </html>

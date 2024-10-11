@@ -67,8 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>SchoenenWijns | Product Bewerken</title>
 </head>
 <body>
-<header>
-    <div class="logo">SchoenenWijns</div>
+<div class="logo">SchoenenWijns</div>
     <nav>
         <ul>
             <li><a href="index.php">Home</a></li>
@@ -86,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </ul>
     </nav>
 </header>
+
 
 <main>
     <div class="hero">
