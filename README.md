@@ -7,4 +7,6 @@ Groep 1:
 - Nouredine T
 
 
-Project Uitleg:
+Publieke website link:
+
+https://schoenenwijns.feralstorm.com/
