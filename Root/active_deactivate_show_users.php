@@ -9,7 +9,7 @@ $successMessage = '';
 // Haal eerst alle gebruikers op als er geen POST-verzoek is
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
     // Haal alle gebruikers op
-    $sqlAllUsers = "SELECT * FROM User WHERE user_type='user'";
+    $sqlAllUsers = "SELECT * FROM User";
     $resultAllUsers = $conn->query($sqlAllUsers);
 
     while ($row = $resultAllUsers->fetch_assoc()) {
@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $voornaam = $_POST["voornaam"];
         $email = $_POST["email"];
         $schoenmaat = $_POST["schoenmaat"];
+        
 
         $sql2 = "UPDATE User SET naam=?, voornaam=?, email=?, schoenmaat=? WHERE user_id=?";
         $stmt2 = $conn->prepare($sql2);
@@ -39,14 +40,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Activeren of deactiveren
     if (isset($_POST["activeren"]) || isset($_POST["deactiveren"])) {
         $userid = $_POST["userid"];
+        $userType = $_POST["user_type"];
+        if (isset($_POST["deactiveren"]) && $userType == 'admin') {
+            if($userType=="admin"){
+            
+            $adminCountQuery = "SELECT COUNT(*) AS admin_count FROM User WHERE user_type = 'admin' AND actief = 1";
+            $adminCountResult = $conn->query($adminCountQuery);
+            $adminCountRow = $adminCountResult->fetch_assoc();
+            $adminCount = $adminCountRow['admin_count'];
+    
+            
+            if ($adminCount <= 1) {
+                echo "Deactivatie mislukt: er moet altijd ten minste één admin actief zijn.";
+                
+            }
+            else{
+                $actiefStatus = isset($_POST["activeren"]) ? 1 : 0;
+        $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
+        $stmtUpdate = $conn->prepare($sqlUpdate);
+        $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
+        $stmtUpdate->execute();
+    
+        $successMessage = $actiefStatus ? "Succesvol geactiveerd." : "Succesvol gedeactiveerd.";
+
+            }
+        }
+    }
+    else{
+        // Voer de activatie/deactivatie uit
         $actiefStatus = isset($_POST["activeren"]) ? 1 : 0;
         $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
         $stmtUpdate = $conn->prepare($sqlUpdate);
         $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
         $stmtUpdate->execute();
-
+    
         $successMessage = $actiefStatus ? "Succesvol geactiveerd." : "Succesvol gedeactiveerd.";
     }
+}
+
 
     // Zoek op gebruiker
     if (isset($_POST["indienen"])) {
@@ -321,10 +352,12 @@ if (!isset($conn)) {
                         <td>
                             <form action='active_deactivate_show_users.php' method='post' style='display:inline;'>
                                 <input type='hidden' name='userid' value='<?php echo $row["user_id"]; ?>'>
+                                <input type='hidden' name='user_type' value='<?php echo $row["user_type"]; ?>'>
                                 <input type='submit' name='activeren' value='Activeren' class='btn btn-activate'>
                             </form>
                             <form action='active_deactivate_show_users.php' method='post' style='display:inline;'>
                                 <input type='hidden' name='userid' value='<?php echo $row["user_id"]; ?>'>
+                                <input type='hidden' name='user_type' value='<?php echo $row["user_type"]; ?>'>
                                 <input type='submit' name='deactiveren' value='Deactiveren' class='btn btn-deactivate'>
                             </form>
                         </td>
