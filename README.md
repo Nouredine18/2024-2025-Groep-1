@@ -9,7 +9,8 @@ Groep 1:
 
 Publieke website link:
 
-https://schoenenwijns.feralstorm.com/
+- Link website: https://schoenenwijns.feralstorm.com/
+- Link Databank: https://auth-db1514.hstgr.io/index.php?route=/sql&pos=0&db=u220407022_dbfootwear&table=user
 
 - database name = u220407022_dbfootwear
 - password = TeamNouredine3
