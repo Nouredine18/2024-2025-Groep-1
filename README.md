@@ -11,5 +11,5 @@ Publieke website link:
 
 https://schoenenwijns.feralstorm.com/
 
-database name = u220407022_dbfootwear
-password = TeamNouredine3
+- database name = u220407022_dbfootwear
+- password = TeamNouredine3
