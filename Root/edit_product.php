@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <title>SchoenenWijns | Product Bewerken</title>
+    
 </head>
 <body>
 <div class="logo">SchoenenWijns</div>

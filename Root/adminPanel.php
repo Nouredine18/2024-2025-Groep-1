@@ -204,7 +204,8 @@ $result = $conn->query($sql);
             <li><a href="logout.php">Logout</a></li>
             <li><a href="add_product.php">Voeg Product Toe</a></li>
             <li><a href="manage_products.php">Beheer Producten</a></li>
-            <li><a href="active_deactivate_show_users.php">Users</a></li> 
+            <li><a href="active_deactivate_show_users.php">Users</a></li>
+            <li><a href="profile.php">profiel</a></li>
             <li><a href="#">Welcome, <?php echo $_SESSION['voornaam']; ?></a></li>
         </ul>
     </nav>

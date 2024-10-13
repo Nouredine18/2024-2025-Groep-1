@@ -19,7 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 
 // Controleer of er een POST-verzoek is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
     // Formulierinvoer voor aanpassen, activeren, deactiveren
     if (isset($_POST["aanpassen"])) {
         $userid = $_POST["userid"];
@@ -28,10 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = $_POST["email"];
         $schoenmaat = $_POST["schoenmaat"];
         
-
         $sql2 = "UPDATE User SET naam=?, voornaam=?, email=?, schoenmaat=? WHERE user_id=?";
         $stmt2 = $conn->prepare($sql2);
-        $stmt2->bind_param("sssii", $naam, $voornaam, $email, $schoenmaat, $userid);
+        $stmt2->bind_param("ssssi", $naam, $voornaam, $email, $schoenmaat, $userid);
         $stmt2->execute();
 
         $successMessage = "Gegevens succesvol aangepast.";
@@ -41,43 +39,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["activeren"]) || isset($_POST["deactiveren"])) {
         $userid = $_POST["userid"];
         $userType = $_POST["user_type"];
-        if (isset($_POST["deactiveren"]) && $userType == 'admin') {
-            if($userType=="admin"){
-            
+
+        if (isset($_POST["deactiveren"]) && $userType === 'admin') {
             $adminCountQuery = "SELECT COUNT(*) AS admin_count FROM User WHERE user_type = 'admin' AND actief = 1";
             $adminCountResult = $conn->query($adminCountQuery);
             $adminCountRow = $adminCountResult->fetch_assoc();
             $adminCount = $adminCountRow['admin_count'];
-    
-            
-            if ($adminCount <= 1) {
-                echo "Deactivatie mislukt: er moet altijd ten minste één admin actief zijn.";
-                
-            }
-            else{
-                $actiefStatus = isset($_POST["activeren"]) ? 1 : 0;
-        $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
-        $stmtUpdate = $conn->prepare($sqlUpdate);
-        $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
-        $stmtUpdate->execute();
-    
-        $successMessage = $actiefStatus ? "Succesvol geactiveerd." : "Succesvol gedeactiveerd.";
 
+            if ($adminCount <= 1) {
+                $successMessage = "Deactivatie mislukt: er moet altijd ten minste één admin actief zijn.";
+            } else {
+                $actiefStatus = 0; // Deactiveren
+                $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
+                $stmtUpdate = $conn->prepare($sqlUpdate);
+                $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
+                $stmtUpdate->execute();
+                $successMessage = "Succesvol gedeactiveerd.";
             }
+        } else {
+            $actiefStatus = isset($_POST["activeren"]) ? 1 : 0; // Activeren of deactiveren based on button clicked
+            $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
+            $stmtUpdate = $conn->prepare($sqlUpdate);
+            $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
+            $stmtUpdate->execute();
+            $successMessage = $actiefStatus ? "Succesvol geactiveerd." : "Succesvol gedeactiveerd.";
         }
     }
-    else{
-        // Voer de activatie/deactivatie uit
-        $actiefStatus = isset($_POST["activeren"]) ? 1 : 0;
-        $sqlUpdate = "UPDATE User SET actief = ? WHERE user_id = ?";
-        $stmtUpdate = $conn->prepare($sqlUpdate);
-        $stmtUpdate->bind_param("ii", $actiefStatus, $userid);
-        $stmtUpdate->execute();
-    
-        $successMessage = $actiefStatus ? "Succesvol geactiveerd." : "Succesvol gedeactiveerd.";
-    }
-}
-
 
     // Zoek op gebruiker
     if (isset($_POST["indienen"])) {
@@ -98,6 +85,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $users[] = $row; // Voeg elke gevonden gebruiker toe aan de lijst
         }
     }
+
+    // Beheerder maken of demotiveren
+    if (isset($_POST['create_beheerder'])) {
+        $userid = $_POST["userid"];
+        $sqlBeheerder = "UPDATE User SET user_type='beheerder' WHERE user_id=?";
+        $stmtBeheerder = $conn->prepare($sqlBeheerder);
+        $stmtBeheerder->bind_param("i", $userid);
+        $stmtBeheerder->execute();
+        $successMessage = "Succesvol gemaakt als beheerder.";
+    }
+    
+    if (isset($_POST['destroy_beheerder'])) {
+        $userid = $_POST["userid"];
+        $sqlGedemoteerde = "UPDATE User SET user_type='beheerder' WHERE user_id=?";
+        $stmtGedemoteerde = $conn->prepare($sqlGedemoteerde);
+        $stmtGedemoteerde->bind_param("i", $userid);
+        $stmtGedemoteerde->execute();
+        $successMessage = "Succesvol gedemotiveerd als beheerder.";
+    }
 }
 
 if (!isset($conn)) {
@@ -108,11 +114,16 @@ if (!isset($conn)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- rest van het head element -->
     <title>Zoek gebruiker</title>
-    <link rel="stylesheet" href="css/style.css"> 
+    <link rel="stylesheet" href="css/style.css">
     <style>
+        /* CSS styles hier */
+    </style>
+</head>
+<body>
+<header>
+<style>
         header {
             background-color: #333;
             color: #fff;
@@ -199,106 +210,7 @@ if (!isset($conn)) {
         .social-media ul li a:hover {
             color: #007bff;
         }
-
-        .btn {
-            display: inline-block;
-            padding: 8px 12px;
-            margin: 4px 2px;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #fff;
-            transition: background-color 0.3s;
-        }
-
-        .btn-edit {
-            background-color: #28a745;
-        }
-
-        .btn-edit:hover {
-            background-color: #218838;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
-
-        .btn-activate {
-            background-color: #007bff;
-        }
-
-        .btn-activate:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-deactivate {
-            background-color: #ffc107;
-        }
-
-        .btn-deactivate:hover {
-            background-color: #e0a800;
-        }
-
-        .form-inline {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .form-inline label {
-            font-weight: bold;
-        }
-
-        .form-inline input[type="text"],
-        .form-inline input[type="email"],
-        .form-inline input[type="number"] {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-        }
-
-        .form-inline input[type="submit"] {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-    </style>
-</head>
-<body>
-<header>
+        </style>
     <div class="logo">SchoenenWijns</div>
     <nav>
         <ul>
@@ -322,7 +234,7 @@ if (!isset($conn)) {
     <form action="active_deactivate_show_users.php" method="post" class="form-inline">
         <label for="zoekresultaat">Geef de gebruiker in van de persoon:</label>
         <input type="text" name="zoekresultaat" id="zoekresultaat" required>
-        <input type="submit" name="indienen" value="Zoeken" class="btn btn-activate">
+        <input type="submi!t" name="indienen" value="Zoeken" class="btn btn-activate">
     </form>
 
     <?php if ($successMessage): ?>
@@ -360,6 +272,17 @@ if (!isset($conn)) {
                                 <input type='hidden' name='user_type' value='<?php echo $row["user_type"]; ?>'>
                                 <input type='submit' name='deactiveren' value='Deactiveren' class='btn btn-deactivate'>
                             </form>
+                            <?php if ($row["user_type"] == "user"): ?>
+                            <form action="active_deactivate_show_users.php" method="post" style='display:inline;'>
+                                <input type='hidden' name='userid' value='<?php echo $row["user_id"]; ?>'>
+                                <input type="submit" name="create_beheerder" value="Maak beheerder" class='btn btn-activate'>
+                            </form>
+                            <?php elseif ($row["user_type"] == "beheerder"): ?>
+                            <form action="active_deactivate_show_users.php" method="post" style='display:inline;'>
+                                <input type='hidden' name='userid' value='<?php echo $row["user_id"]; ?>'>
+                                <input type="submit" name="destroy_beheerder" value="Demotiveer beheerder" class='btn btn-deactivate'>
+                            </form>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <form action='active_deactivate_show_users.php' method='post' class='form-inline'>
@@ -386,7 +309,6 @@ if (!isset($conn)) {
 
 <footer>
     <p>&copy; 2024 SchoenenWijns. Alle rechten voorbehouden.</p>
-
     <div class="social-media">
         <h3>Volg ons op:</h3>
         <ul>
