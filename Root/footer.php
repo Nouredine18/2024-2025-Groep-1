@@ -56,7 +56,7 @@
             <li><a href="https://www.twitter.com" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
             <li><a href="https://www.instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
             <li><a href="https://www.linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i> LinkedIn</a></li>
-            <li><a href="RetourbeleidWijns.pdf" download><i class="fab fa-linkedin-in"></i> LinkedIn</a></li>
+            <li><a href="RetourbeleidWijns.pdf" download><i class="fab fa-linkedin-in"></i> Retourbeleid</a></li>
         </ul>
     </div>
 </footer>
