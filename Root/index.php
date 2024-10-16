@@ -152,16 +152,16 @@ include('header.php');
                         <!-- Toon productafbeelding -->
                         <a href="info_product.php?artikelnr=<?php echo $row['artikelnr']; ?>">
                             <?php if (!empty($row['directory'])): ?>
-                                <img src="directory/<?php echo $row['directory']; ?>" alt="<?php echo $row['naam']; ?>" class="product-image">
+                                <img src="<?php echo htmlspecialchars($row['directory']); ?>" alt="<?php echo htmlspecialchars($row['naam']); ?>" class="product-image">
                             <?php else: ?>
                                 <img src="directory/default.jpg" alt="Geen afbeelding beschikbaar" class="product-image">
                             <?php endif; ?>
                         </a>
                         
                         <div class="product-info">
-                            <div class="product-title"><?php echo $row['naam']; ?></div> <!-- Toon de productnaam -->
+                            <div class="product-title"><?php echo htmlspecialchars($row['naam']); ?></div> <!-- Toon de productnaam -->
                             <div class="product-category">Categorie</div> <!-- Voorbeeld categorie -->
-                            <div class="product-price">€<?php echo $row['prijs']; ?></div> <!-- Toon de productprijs -->
+                            <div class="product-price">€<?php echo number_format($row['prijs'], 2, ',', '.'); ?></div> <!-- Toon de productprijs -->
                         </div>
                     </div>
                 </div>
