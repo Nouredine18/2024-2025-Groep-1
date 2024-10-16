@@ -2,22 +2,31 @@
 include 'connect.php';
 session_start();
 
-$login_error = $register_error = "";
-$reset_error = $reset_success = "";
+require 'vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+$client = new Google\Client;
 
-// Handle login
+$client->setClientId("YES");
+$client->setClientSecret("NO");
+$client->SetRedirectUri("YES");
+
+$client->addScope("email");
+$client->addScope("profile");
+
+$url = $client->createAuthUrl();
+
+$login_error = $register_error = "";
+
 if (isset($_POST['login'])) {
     $email = $conn->real_escape_string($_POST['email']);
     $password = $_POST['password'];
 
-    // Check if the email exists
     $sql = "SELECT * FROM `User` WHERE email='$email' AND actief=1";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Verify password
         if (password_verify($password, $user['password_hash'])) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['voornaam'] = $user['voornaam'];
@@ -34,21 +43,18 @@ if (isset($_POST['login'])) {
     }
 }
 
-// Handle registration
 if (isset($_POST['register'])) {
     $voornaam = $conn->real_escape_string($_POST['voornaam']);
     $naam = $conn->real_escape_string($_POST['naam']);
     $email = $conn->real_escape_string($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
 
-    // Check if the email is already registered
     $sql = "SELECT * FROM `User` WHERE email='$email'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $register_error = "Email is already registered!";
     } else {
-        // Insert user into the database
         $sql = "INSERT INTO `User` (voornaam, naam, email, password_hash, user_type, actief) VALUES ('$voornaam', '$naam', '$email', '$password', 'user', 1)";
 
         if ($conn->query($sql) === TRUE) {
@@ -59,26 +65,49 @@ if (isset($_POST['register'])) {
     }
 }
 
-// Handle password reset request
 if (isset($_POST['reset_password'])) {
     $email = $conn->real_escape_string($_POST['reset_email']);
     $sql = "SELECT * FROM `User` WHERE email='$email'";
-
-    if ($result = $conn->query($sql) && $result->num_rows > 0) {
-        $token = bin2hex(random_bytes(50)); // Generate a secure token
-        // Store token in the database for verification later (consider adding an expiry time)
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $token = bin2hex(random_bytes(50));
         $sql = "UPDATE `User` SET reset_token='$token' WHERE email='$email'";
         $conn->query($sql);
 
-        // Send password reset email
-        $reset_link = "https://feralstorm.com/reset_password.php?token=$token";
-        mail($email, "Password Reset Request", "Click this link to reset your password: $reset_link");
+        $reset_link = "https://schoenenwijns.feralstorm.com/reset_password.php?token=$token";
+        $mail = new PHPMailer;
+        $mail->isSMTP();
+        $mail->SMTPDebug = 0;
+        $mail->Host = 'smtp.hostinger.com';
+        $mail->Port = 587;
+        $mail->SMTPAuth = true;
+        $mail->Username = 'password@feralstorm.com';
+        $mail->Password = 'PASSWORD';
+        $mail->setFrom('password@feralstorm.com', 'Reset Password');
+        $mail->addReplyTo('password@feralstorm.com', 'Reset Password');
+        $mail->addAddress($email, $email);
+        $mail->Subject = 'Reset Password @ Schoenen Wijns';
 
-        $reset_success = "Check your email for a link to reset your password.";
+        $html_body = file_get_contents('email_templates/resetpassword.html');
+        if ($html_body === false) {
+            echo 'Kan het HTML-bestand niet vinden of openen.';
+            exit;
+        }
+
+        $html_body = str_replace('{{reset_link}}', $reset_link, $html_body);
+        $mail->msgHTML($html_body, __DIR__);
+
+        if (!$mail->send()) {
+            echo 'Mailer Error: ' . $mail->ErrorInfo;
+        } else {
+            echo 'De e-mail is verzonden.';
+            header('Location: login_register.php');
+        }
     } else {
-        $reset_error = "No account found with that email!";
+        echo "Aantal rijen: " . $result->num_rows;
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -105,6 +134,8 @@ if (isset($_POST['reset_password'])) {
             <span class="forgot-password-link" onclick="showResetForm()">Forgot Password?</span>
         </div>
 
+        <a href="<?= $url ?>"> Sign in with Google</a>
+
         <div id="register-form" style="display: none;">
             <h3>Register</h3>
             <form action="login_register.php" method="post">
@@ -123,8 +154,6 @@ if (isset($_POST['reset_password'])) {
             <form action="login_register.php" method="post">
                 <input type="email" name="reset_email" placeholder="Enter your email" required><br>
                 <input type="submit" name="reset_password" value="Reset Password">
-                <div class="success"><?php echo $reset_success; ?></div>
-                <div class="error"><?php echo $reset_error; ?></div>
             </form>
             <span class="switch-link" onclick="hideResetForm()">Back to Login</span>
         </div>
