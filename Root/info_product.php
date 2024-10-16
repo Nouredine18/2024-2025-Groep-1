@@ -2,16 +2,14 @@
 include 'connect.php';
 session_start();
 
-// Haal het product-ID op uit de queryparameter
 $artikelnr = isset($_GET['artikelnr']) ? intval($_GET['artikelnr']) : 0;
 
-// Initialiseer variabelen
 $product = null;
 $colors = [];
-$sizes = [];
 $reviews = [];
+$images = [];
 
-// Haal productdetails op
+// Fetch product details
 $sql_product = "SELECT * FROM Products WHERE artikelnr = ?";
 $stmt_product = $conn->prepare($sql_product);
 $stmt_product->bind_param("i", $artikelnr);
@@ -21,7 +19,7 @@ if ($result_product->num_rows > 0) {
     $product = $result_product->fetch_assoc();
 }
 
-// Haal beschikbare kleuren voor het product op
+// Fetch available colors
 $sql_colors = "SELECT DISTINCT kleur FROM ProductVariant WHERE artikelnr = ?";
 $stmt_colors = $conn->prepare($sql_colors);
 $stmt_colors->bind_param("i", $artikelnr);
@@ -31,7 +29,7 @@ while ($row = $result_colors->fetch_assoc()) {
     $colors[] = $row['kleur'];
 }
 
-// Haal beoordelingen voor het product op
+// Fetch reviews
 $sql_reviews = "SELECT r.review_text, r.rating, r.review_date, u.naam FROM Reviews r JOIN User u ON r.user_id = u.user_id WHERE r.artikelnr = ? ORDER BY r.review_date DESC";
 $stmt_reviews = $conn->prepare($sql_reviews);
 $stmt_reviews->bind_param("i", $artikelnr);
@@ -41,18 +39,30 @@ while ($row = $result_reviews->fetch_assoc()) {
     $reviews[] = $row;
 }
 
-// Verwerk het indienen van een beoordeling
+// Fetch images for the default color (first color)
+if (!empty($colors)) {
+    $default_color = $colors[0];
+    $sql_images = "SELECT variant_directory FROM ProductVariant WHERE artikelnr = ? AND kleur = ?";
+    $stmt_images = $conn->prepare($sql_images);
+    $stmt_images->bind_param("is", $artikelnr, $default_color);
+    $stmt_images->execute();
+    $result_images = $stmt_images->get_result();
+    if ($result_images->num_rows > 0) {
+        $row = $result_images->fetch_assoc();
+        $images = explode(" | ", $row['variant_directory']);
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST['rating'])) {
     $review_text = $_POST['review_text'];
     $rating = intval($_POST['rating']);
-    $user_id = $_SESSION['user_id']; // Aannemende dat user_id in de sessie is opgeslagen
+    $user_id = $_SESSION['user_id'];
 
     $sql_insert_review = "INSERT INTO Reviews (user_id, artikelnr, review_text, rating) VALUES (?, ?, ?, ?)";
     $stmt_insert_review = $conn->prepare($sql_insert_review);
     $stmt_insert_review->bind_param("iisi", $user_id, $artikelnr, $review_text, $rating);
     $stmt_insert_review->execute();
 
-    // Vernieuw de pagina om de nieuwe beoordeling te tonen
     header("Location: info_product.php?artikelnr=$artikelnr");
     exit;
 }
@@ -65,444 +75,203 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($product['naam'] ?? 'Product'); ?></title>
-    <style>
-        /* Algemene styling */
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fff;
-            color: #333;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        h1, h2, h3, h4 {
-            margin: 0;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            margin: 50px auto;
-            max-width: 1100px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-info {
-            display: flex;
-            flex-direction: row;
-        }
-
-        /* Galerij styling */
-        .gallery {
-            display: flex;
-            flex-direction: column;
-            margin-right: 20px;
-        }
-
-        .gallery img {
-            width: 70px;
-            height: 70px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .gallery img:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        .main-image {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .main-image img {
-            max-width: 450px;
-            max-height: 450px;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .main-image img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Productdetails styling */
-        .product-details {
-            margin-left: 40px;
-            flex: 1;
-        }
-
-        .product-details h1 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .price {
-            font-size: 24px;
-            color: #e74c3c;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-
-        .description {
-            margin: 20px 0;
-            font-size: 16px;
-            color: #555;
-        }
-
-        .colors, .sizes {
-            display: flex;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .colors div, .sizes button {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-            border-radius: 50%;
-            border: 2px solid #ddd;
-            cursor: pointer;
-            transition: border-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .sizes button {
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            line-height: 50px;
-            text-align: center;
-        }
-
-        .sizes button:hover,
-        .colors div:hover {
-            border-color: #333;
-            transform: scale(1.1);
-        }
-
-        /* Winkelwagenknop */
-        .cart-button {
-            display: inline-block;
-            background-color: #000;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .cart-button:hover {
-            background-color: #333;
-            transform: translateY(-2px);
-        }
-
-        .rating {
-            display: inline-block;
-            background-color: #f39c12;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        /* Modal styling */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
-            width: 80%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .close {
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* Beoordelingssectie */
-        .reviews {
-            margin-top: 40px;
-        }
-
-        .review {
-            border-bottom: 1px solid #ddd;
-            padding: 20px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .review h4 {
-            margin: 0;
-            font-size: 18px;
-            color: #333;
-        }
-
-        .review p {
-            margin: 0;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .review .rating {
-            background-color: #f39c12;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 50px;
-            font-size: 12px;
-            display: inline-block;
-        }
-
-        .review small {
-            color: #999;
-        }
-
-        .review-form {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .review-form textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .review-form select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .review-form button {
-            background-color: #000;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .review-form button:hover {
-            background-color: #333;
-            transform: translateY(-2px);
-        }
-
-        /* Terugknop */
-        .go-back-button {
-            display: inline-block;
-            background-color: #ccc;
-            color: #333;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .go-back-button:hover {
-            background-color: #bbb;
-            transform: translateY(-2px);
-        }
-    </style>
+    <link rel="stylesheet" href="css/cart.css">
 </head>
 
 <body>
-
-<div class="container">
-    <div class="product-info">
-        <!-- Hoofdafbeelding -->
-        <div class="main-image">
-            <img src="directory/<?php echo !empty($product['directory']) ? htmlspecialchars($product['directory']) : 'default.jpg'; ?>" alt="Hoofdafbeelding product">
-        </div>
-
-        <!-- Productdetails -->
-        <div class="product-details">
-            <div class="rating">★ Goede beoordeling</div>
-            <h1><?php echo htmlspecialchars($product['naam'] ?? 'Product'); ?></h1>
-            <p class="price">€<?php echo htmlspecialchars($product['prijs'] ?? ''); ?></p>
-
-            <!-- Kleuropties -->
-            <div class="colors">
-                <?php if (!empty($colors)): ?>
+    <div class="container">
+        <div class="product-info">
+            <div class="gallery" id="gallery">
+                <?php foreach ($images as $image): ?>
+                    <img src="<?php echo htmlspecialchars($image); ?>" alt="Product afbeelding">
+                <?php endforeach; ?>
+            </div>
+            <div class="main-image">
+                <img id="main-image" src="<?php echo htmlspecialchars($images[0] ?? 'img/main_product_image.jpg'); ?>" alt="Hoofd product afbeelding">
+            </div>
+            <div class="product-details">
+                <h1><?php echo htmlspecialchars($product['naam'] ?? 'Productnaam'); ?></h1>
+                <div class="price">&euro;<?php echo number_format($product['prijs'] ?? 0, 2, ',', '.'); ?></div>
+                <div class="description">
+                    <?php echo nl2br(htmlspecialchars($product['beschrijving'] ?? 'Geen beschrijving beschikbaar.')); ?>
+                </div>
+                <div class="colors">
                     <?php foreach ($colors as $color): ?>
-                        <div class="color-option" data-color="<?php echo htmlspecialchars($color); ?>" style="background-color: <?php echo htmlspecialchars($color); ?>;"></div>
+                        <div class="color" style="background-color: <?php echo htmlspecialchars($color); ?>" data-color="<?php echo htmlspecialchars($color); ?>"></div>
                     <?php endforeach; ?>
+                </div>
+                <div class="sizes" id="sizes-container">
+                    <!-- Maatopties worden hier dynamisch geladen -->
+                </div>
+
+                <div class="selected-options">
+                    <p>Geselecteerde kleur: <span id="selected-color-display">Geen</span></p>
+                    <p>Geselecteerde maat: <span id="selected-size-display">Geen</span></p>
+                </div>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <form action="add_to_cart.php" method="post" id="add-to-cart-form">
+                        <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
+                        <input type="hidden" name="kleur" id="selected-color" value="">
+                        <input type="hidden" name="maat" id="selected-size" value="">
+                        <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
+                        <button type="submit" class="cart-button">Voeg toe aan winkelmandje</button>
+                    </form>
                 <?php else: ?>
-                    <p>Geen kleuren beschikbaar.</p>
+                    <form action="order_form.php" method="get">
+                        <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
+                        <input type="hidden" name="kleur" id="selected-color" value="">
+                        <input type="hidden" name="maat" id="selected-size" value="">
+                        <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
+                        <button type="submit" class="cart-button">Bestel</button>
+                    </form>
                 <?php endif; ?>
+
+                <div class="rating">
+                    Gemiddelde beoordeling: 4.5/5
+                </div>
+                <button onclick="window.location.href='index.php'" class="back-button">Ga Terug</button>
             </div>
-
-            <!-- Maatopties -->
-            <div class="sizes">
-                <p>Geen maten beschikbaar.</p>
-            </div>
-
-            <!-- Winkelwagenknop -->
-            <form action="add_to_cart.php" method="post" id="add-to-cart-form">
-                <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
-                <input type="hidden" name="kleur" id="selected-color" value="">
-                <input type="hidden" name="maat" id="selected-size" value="">
-                <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
-                <button type="submit" class="cart-button">Voeg toe aan winkelmandje</button>
-            </form>
-
-            <!-- Terugknop -->
-            <button class="go-back-button" onclick="window.location.href='index.php'">Ga terug</button>
         </div>
-    </div>
 
-    <!-- Productbeschrijving -->
-    <div class="description">
-        <h2>Beschrijving</h2>
-        <p><?php echo htmlspecialchars($product['product_information'] ?? 'Geen beschrijving beschikbaar.'); ?></p>
-    </div>
-
-    <!-- Beoordelingssectie -->
-    <div class="reviews">
-        <h2>Beoordelingen</h2>
-        <?php if (!empty($reviews)): ?>
+        <div class="reviews">
+            <h2>Beoordelingen</h2>
             <?php foreach ($reviews as $review): ?>
                 <div class="review">
-                    <h4><?php echo htmlspecialchars($review['naam']); ?> <span class="rating">★ <?php echo htmlspecialchars($review['rating']); ?></span></h4>
-                    <p><?php echo htmlspecialchars($review['review_text']); ?></p>
-                    <small><?php echo htmlspecialchars($review['review_date']); ?></small>
+                    <h4><?php echo htmlspecialchars($review['naam']); ?></h4>
+                    <div class="rating">Rating: <?php echo htmlspecialchars($review['rating']); ?>/5</div>
+                    <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                    <small>Beoordeeld op <?php echo htmlspecialchars($review['review_date']); ?></small>
                 </div>
             <?php endforeach; ?>
-        <?php else: ?>
-            <p>Geen beoordelingen. Wees de eerste om dit product te beoordelen!</p>
-        <?php endif; ?>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <h3>Schrijf een beoordeling</h3>
+                <form action="info_product.php?artikelnr=<?php echo htmlspecialchars($artikelnr); ?>" method="post" class="review-form">
+                    <textarea name="review_text" placeholder="Schrijf je beoordeling hier..." required></textarea>
+                    <select name="rating" required>
+                        <option value="5">5 - Uitstekend</option>
+                        <option value="4">4 - Goed</option>
+                        <option value="3">3 - Gemiddeld</option>
+                        <option value="2">2 - Slecht</option>
+                        <option value="1">1 - Zeer slecht</option>
+                    </select>
+                    <button type="submit">Beoordeling indienen</button>
+                </form>
+            <?php else: ?>
+                <p>Log in om een beoordeling te schrijven.</p>
+            <?php endif; ?>
+        </div>
     </div>
 
-    <!-- Beoordelingsformulier -->
-    <div class="review-form">
-        <h2>Schrijf een beoordeling</h2>
-        <form action="" method="post">
-            <textarea name="review_text" placeholder="Schrijf hier uw beoordeling..." required></textarea>
-            <select name="rating" required>
-                <option value="">Selecteer beoordeling</option>
-                <option value="1">1 - Slecht</option>
-                <option value="2">2 - Matig</option>
-                <option value="3">3 - Goed</option>
-                <option value="4">4 - Zeer goed</option>
-                <option value="5">5 - Uitstekend</option>
-            </select>
-            <button type="submit">Beoordeling indienen</button>
-        </form>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="myModal" class="modal">
-    <div class="modal-content">
+    <div id="imageModal" class="modal">
         <span class="close">&times;</span>
-        <p>Selecteer zowel een kleur als een maat voordat u toevoegt aan het winkelmandje.</p>
+        <img class="modal-content" id="modalImage">
+        <div id="caption"></div>
+        <a class="prev" id="prev">&#10094;</a>
+        <a class="next" id="next">&#10095;</a>
     </div>
-</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstColor = document.querySelector('.color');
+            if (firstColor) {
+                firstColor.click();
+            }
+        });
 
-<script>
-    // JavaScript om kleur- en maatselectie te verwerken
-    document.querySelectorAll('.colors div').forEach(colorDiv => {
-        colorDiv.addEventListener('click', function () {
-            document.querySelectorAll('.colors div').forEach(div => div.style.border = '2px solid #ddd');
-            this.style.border = '2px solid #333';
-            document.getElementById('selected-color').value = this.dataset.color;
+        document.querySelectorAll('.color').forEach(function (colorDiv) {
+            colorDiv.addEventListener('click', function () {
+                const selectedColor = this.dataset.color;
+                document.getElementById('selected-color').value = selectedColor;
+                document.getElementById('selected-color-display').textContent = selectedColor;
+                fetchSizes(selectedColor);
+                fetchImages(selectedColor);
+            });
+        });
 
-            // Haal beschikbare maten op voor de geselecteerde kleur
-            fetch(`get_sizes.php?artikelnr=<?php echo $artikelnr; ?>&kleur=${this.dataset.color}`)
+        function fetchSizes(color) {
+            const artikelnr = <?php echo $artikelnr; ?>;
+            fetch(`fetch_sizes.php?artikelnr=${artikelnr}&color=${color}`)
                 .then(response => response.json())
                 .then(data => {
-                    const sizesContainer = document.querySelector('.sizes');
-                    sizesContainer.innerHTML = ''; // Maak de huidige maten leeg
-                    if (data.length > 0) {
-                        data.forEach(size => {
-                            const sizeButton = document.createElement('button');
-                            sizeButton.textContent = size;
-                            sizeButton.addEventListener('click', function () {
-                                document.querySelectorAll('.sizes button').forEach(button => button.style.border = '2px solid #ddd');
-                                this.style.border = '2px solid #333';
-                                document.getElementById('selected-size').value = this.textContent;
-                            });
-                            sizesContainer.appendChild(sizeButton);
+                    const sizesContainer = document.getElementById('sizes-container');
+                    sizesContainer.innerHTML = '';
+                    data.sizes.forEach(size => {
+                        const button = document.createElement('button');
+                        button.className = 'size';
+                        button.dataset.size = size;
+                        button.textContent = size;
+                        button.addEventListener('click', function () {
+                            const selectedSize = this.dataset.size;
+                            document.getElementById('selected-size').value = selectedSize;
+                            document.getElementById('selected-size-display').textContent = selectedSize;
                         });
-                    } else {
-                        sizesContainer.innerHTML = '<p>Geen maten beschikbaar.</p>';
-                    }
+                        sizesContainer.appendChild(button);
+                    });
                 });
-        });
-    });
-
-    // Zorg ervoor dat het formulier alleen wordt ingediend als een kleur en maat zijn geselecteerd
-    document.querySelector('.cart-button').addEventListener('click', function (event) {
-        const selectedColor = document.getElementById('selected-color').value;
-        const selectedSize = document.getElementById('selected-size').value;
-        if (!selectedColor || !selectedSize) {
-            event.preventDefault();
-            document.getElementById('myModal').style.display = "block";
         }
-    });
 
-    // Sluit de modal
-    document.querySelector('.close').addEventListener('click', function () {
-        document.getElementById('myModal').style.display = "none";
-    });
-
-    // Sluit de modal bij klikken buiten de modal
-    window.addEventListener('click', function (event) {
-        if (event.target == document.getElementById('myModal')) {
-            document.getElementById('myModal').style.display = "none";
+        function fetchImages(color) {
+            const artikelnr = <?php echo $artikelnr; ?>;
+            fetch(`fetch_images.php?artikelnr=${artikelnr}&color=${color}`)
+                .then(response => response.json())
+                .then(data => {
+                    const gallery = document.getElementById('gallery');
+                    const mainImage = document.getElementById('main-image');
+                    gallery.innerHTML = '';
+                    data.images.forEach(image => {
+                        const img = document.createElement('img');
+                        img.src = image;
+                        img.alt = 'Product afbeelding';
+                        gallery.appendChild(img);
+                    });
+                    if (data.images.length > 0) {
+                        mainImage.src = data.images[0];
+                    } else {
+                        mainImage.src = 'img/main_product_image.jpg';
+                    }
+                    // Add click event to images for modal
+                    addImageClickEvent(data.images);
+                });
         }
-    });
-</script>
+
+        function addImageClickEvent(images) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const captionText = document.getElementById("caption");
+            let currentIndex = 0;
+
+            document.querySelectorAll('.gallery img').forEach(function(img, index) {
+                img.onclick = function() {
+                    modal.style.display = "block";
+                    modalImg.src = this.src;
+                    captionText.innerHTML = this.alt;
+                    currentIndex = index;
+                }
+            });
+
+            const span = document.getElementsByClassName("close")[0];
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            const prev = document.getElementById("prev");
+            const next = document.getElementById("next");
+
+            prev.onclick = function() {
+                currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+                modalImg.src = images[currentIndex];
+            }
+
+            next.onclick = function() {
+                currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
+                modalImg.src = images[currentIndex];
+            }
+        }
+    </script>
+
+    <!-- Include the image_click.php file here -->
+    <?php include 'image_click.php'; ?>
 
 </body>
-
 </html>

@@ -1,13 +1,10 @@
 <?php
-// Verbind met de database en start de sessie
 include 'connect.php';
 session_start();
 
-// Haal de cart count uit de database
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 
-    // SQL-query om het aantal artikelen in de winkelwagen op te halen
     $sql_count = "SELECT SUM(aantal) AS total_items FROM Cart WHERE user_id = ?";
     $stmt_count = $conn->prepare($sql_count);
     $stmt_count->bind_param("i", $user_id);
@@ -15,29 +12,37 @@ if (isset($_SESSION['user_id'])) {
     $result_count = $stmt_count->get_result();
     $row_count = $result_count->fetch_assoc();
 
-    // Haal het aantal artikelen op uit de database, of zet het op 0 als er geen artikelen zijn
     $_SESSION['cart_count'] = $row_count['total_items'] ? $row_count['total_items'] : 0;
 }
 
-// Controleer of de gebruiker is ingelogd, zo niet, stuur door naar de login pagina
 if (!isset($_SESSION['user_id'])) {
     header("Location: login_register.php");
     exit();
 }
 
-// Haal de user_id op uit de sessie
 $user_id = $_SESSION['user_id'];
 
-// SQL-query om de producten en hun details uit de winkelwagen op te halen
-$sql = "SELECT p.naam, pv.kleur, pv.maat, c.aantal, p.prijs, c.artikelnr, c.variantnr 
+$sql = "SELECT p.naam, pv.kleur, pv.maat, c.aantal, p.prijs, c.artikelnr, c.variantnr, pv.stock 
         FROM Cart c 
         JOIN ProductVariant pv ON c.artikelnr = pv.artikelnr AND c.variantnr = pv.variantnr
         JOIN Products p ON c.artikelnr = p.artikelnr 
         WHERE c.user_id = ?";
-$stmt = $conn->prepare($sql); // Bereid de SQL-query voor
-$stmt->bind_param("i", $user_id); // Koppel de user_id als parameter
-$stmt->execute(); // Voer de query uit
-$result = $stmt->get_result(); // Haal het resultaat van de query op
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    if ($row['stock'] == 0) {
+        $sql_delete = "DELETE FROM Cart WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
+        $stmt_delete = $conn->prepare($sql_delete);
+        $stmt_delete->bind_param("iii", $user_id, $row['artikelnr'], $row['variantnr']);
+        $stmt_delete->execute();
+    }
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -48,10 +53,10 @@ $result = $stmt->get_result(); // Haal het resultaat van de query op
     <title>Shopping Cart</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css"> <!-- Shared CSS file -->
+    <link rel="stylesheet" href="css/style.css">
     <style>
         body {
-            font-family: 'Oswald', Arial, sans-serif; /* Change to Oswald font */
+            font-family: 'Oswald', Arial, sans-serif;
             background-color: #f8f9fa;
             color: #333;
             margin: 20px;
@@ -148,10 +153,10 @@ include('header.php');
                             <th>Actions</th>
                         </tr>
                         <?php
-                        $total_price = 0; // Variabele om de totale prijs bij te houden
+                        $total_price = 0;
                         while ($row = $result->fetch_assoc()):
-                            $item_total = $row['aantal'] * $row['prijs']; // Bereken de totale prijs per artikel
-                            $total_price += $item_total; // Voeg de prijs toe aan de totaalprijs
+                            $item_total = $row['aantal'] * $row['prijs'];
+                            $total_price += $item_total;
                         ?>
                         <tr>
                             <td><?php echo $row['naam']; ?></td>

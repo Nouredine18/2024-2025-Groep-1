@@ -141,11 +141,12 @@ nav ul li a:hover {
     <nav>
         <ul>
             <li><a href="index.php">Home</a></li>
-            <li><a href="new_featured.php">Nieuw en uitgelicht</a></li>
+            
+            <!-- <li><a href="new_featured.php">Nieuw en uitgelicht</a></li>
             <li><a href="mens.php">Heren</a></li>
             <li><a href="womens.php">Dames</a></li>
-            <li><a href="kids.php">Kids</a></li>
-            <li><a href="sale.php">Sale</a></li>
+            <li><a href="sale.php">Sale</a></li> -->
+
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="cart.php">Winkelwagen (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
                 <li><a href="logout.php">Uitloggen</a></li>
