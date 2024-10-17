@@ -6,9 +6,9 @@ require 'vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 $client = new Google\Client;
 
-$client->setClientId("YES");
-$client->setClientSecret("NO");
-$client->SetRedirectUri("YES");
+$client->setClientId("519320310592-bjj2f62ov0nodbkj028t7slhas6tho5r.apps.googleusercontent.com");
+$client->setClientSecret("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");
+$client->SetRedirectUri("https://schoenenwijns.feralstorm.com/redirect.php");
 
 $client->addScope("email");
 $client->addScope("profile");
@@ -82,7 +82,7 @@ if (isset($_POST['reset_password'])) {
         $mail->Port = 587;
         $mail->SMTPAuth = true;
         $mail->Username = 'password@feralstorm.com';
-        $mail->Password = 'PASSWORD';
+        $mail->Password = 'PasswordReset3#';
         $mail->setFrom('password@feralstorm.com', 'Reset Password');
         $mail->addReplyTo('password@feralstorm.com', 'Reset Password');
         $mail->addAddress($email, $email);
@@ -128,13 +128,17 @@ if (isset($_POST['reset_password'])) {
                 <input type="email" name="email" placeholder="Email" required><br>
                 <input type="password" name="password" placeholder="Password" required><br>
                 <input type="submit" name="login" value="Login">
+                <div class="google-btn-wrapper">
+                    <a href="<?= $url ?>" class="google-btn">
+                        <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" alt="Google logo" class="google-logo">
+                        Sign in with Google
+                    </a>
+                </div>
                 <div class="error"><?php echo $login_error; ?></div>
             </form>
             <span class="switch-link" onclick="toggleForm()">Switch to Register</span><br>
             <span class="forgot-password-link" onclick="showResetForm()">Forgot Password?</span>
         </div>
-
-        <a href="<?= $url ?>"> Sign in with Google</a>
 
         <div id="register-form" style="display: none;">
             <h3>Register</h3>
