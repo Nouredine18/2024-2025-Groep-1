@@ -89,21 +89,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Beheerder maken of demotiveren
     if (isset($_POST['create_beheerder'])) {
         $userid = $_POST["userid"];
-        $sqlBeheerder = "UPDATE User SET user_type='beheerder' WHERE user_id=?";
+        $sqlBeheerder = "UPDATE User SET user_type='admin' WHERE user_id=?";
         $stmtBeheerder = $conn->prepare($sqlBeheerder);
         $stmtBeheerder->bind_param("i", $userid);
         $stmtBeheerder->execute();
-        $successMessage = "Succesvol gemaakt als beheerder.";
+        $successMessage = "Succesvol gemaakt als admin.";
     }
     
-    if (isset($_POST['destroy_beheerder'])) {
-        $userid = $_POST["userid"];
-        $sqlGedemoteerde = "UPDATE User SET user_type='beheerder' WHERE user_id=?";
-        $stmtGedemoteerde = $conn->prepare($sqlGedemoteerde);
-        $stmtGedemoteerde->bind_param("i", $userid);
-        $stmtGedemoteerde->execute();
-        $successMessage = "Succesvol gedemotiveerd als beheerder.";
-    }
+   
 }
 
 if (!isset($conn)) {
