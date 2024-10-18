@@ -118,13 +118,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                         <button type="submit" class="cart-button">Voeg toe aan winkelmandje</button>
                     </form>
                 <?php else: ?>
-                    <form action="order_form.php" method="get">
+                    <form action="betaling.php" method="get">
                         <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
                         <input type="hidden" name="kleur" id="selected-color" value="">
                         <input type="hidden" name="maat" id="selected-size" value="">
                         <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
                         <button type="submit" class="cart-button">Bestel</button>
                     </form>
+
                 <?php endif; ?>
 
                 <div class="rating">
