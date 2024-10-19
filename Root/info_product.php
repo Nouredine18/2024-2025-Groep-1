@@ -95,6 +95,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                 <div class="description">
                     <?php echo nl2br(htmlspecialchars($product['beschrijving'] ?? 'Geen beschrijving beschikbaar.')); ?>
                 </div>
+
+                <!-- Productinformatie sectie -->
+                <div class="product-information">
+                    <h2>Productinformatie</h2>
+                    <p><?php echo nl2br(htmlspecialchars($product['product_information'] ?? 'Geen productinformatie beschikbaar.')); ?></p>
+                </div>
+
                 <div class="colors">
                     <?php foreach ($colors as $color): ?>
                         <div class="color" style="background-color: <?php echo htmlspecialchars($color); ?>" data-color="<?php echo htmlspecialchars($color); ?>"></div>
@@ -125,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                         <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
                         <button type="submit" class="cart-button">Bestel</button>
                     </form>
-
                 <?php endif; ?>
 
                 <div class="rating">
