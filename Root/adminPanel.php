@@ -207,11 +207,10 @@ $result = $conn->query($sql);
                     <li><a href="add_product.php">Voeg Product Toe</a></li>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
+                    <li><a href="add_product.php">Product Toevoegen</a></li>
                     <li><a href="add_variant.php">Variant Toevoegen</a></li>
-                    <!-- Nieuwe link voor kortingscodes -->
-                    <li><a href="add_discount_code.php">Kortingscode Toevoegen</a></li>
                 <?php endif; ?>
-                <li><a href="#">Welkom, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
+                <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
                 <li><a href="login_register.php">Login/Register</a></li>
             <?php endif; ?>
