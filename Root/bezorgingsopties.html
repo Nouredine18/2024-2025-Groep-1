@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bezorgingsopties</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .delivery-option {
+            margin: 10px 0;
+        }
+        .submit-btn {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kies uw Bezorgingsoptie</h1>
+    <form id="delivery-options-form">
+        <div id="delivery-options">
+            <!-- Bezorgopties worden hier weergegeven -->
+        </div>
+        <button type="button" class="submit-btn" onclick="submitDeliveryOption()">Bevestig Bezorgingsoptie</button>
+    </form>
+
+    <script>
+        // Voorbeeld van bezorgopties
+        const deliveryOptions = [
+            { id: 1, name: 'Standaard Bezorging', cost: '€5,00' },
+            { id: 2, name: 'Versnelde Bezorging', cost: '€10,00' },
+            { id: 3, name: 'Afhalen in de Winkel', cost: 'Gratis' }
+        ];
+
+        // Functie om bezorgopties weer te geven
+        function displayDeliveryOptions() {
+            const optionsContainer = document.getElementById('delivery-options');
+            deliveryOptions.forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('delivery-option');
+                optionDiv.innerHTML = `
+                    <input type="radio" id="option${option.id}" name="delivery" value="${option.name}">
+                    <label for="option${option.id}">${option.name} - ${option.cost}</label>
+                `;
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        // Functie om de geselecteerde bezorgoptie te bevestigen
+        function submitDeliveryOption() {
+            const selectedOption = document.querySelector('input[name="delivery"]:checked');
+            if (selectedOption) {
+                alert(`Je hebt gekozen voor: ${selectedOption.value}`);
+            } else {
+                alert('Selecteer een bezorgoptie.');
+            }
+        }
+
+        // Aanroep van de functie om bezorgopties weer te geven
+        displayDeliveryOptions();
+    </script>
+</body>
+</html>
