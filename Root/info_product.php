@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                         <input type="hidden" name="kleur" id="selected-color" value="">
                         <input type="hidden" name="maat" id="selected-size" value="">
                         <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
-                        <button type="submit" class="cart-button">Voeg toe aan winkelmandje</button>
+                        <button type="submit" class="cart-button" id="add-to-cart-button" disabled>Voeg toe aan winkelmandje</button>
                     </form>
                 <?php else: ?>
                     <form action="betaling.php" method="get">
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                         <input type="hidden" name="kleur" id="selected-color" value="">
                         <input type="hidden" name="maat" id="selected-size" value="">
                         <input type="number" name="aantal" value="1" min="1" class="quantity-input" required>
-                        <button type="submit" class="cart-button">Bestel</button>
+                        <button type="submit" class="cart-button" id="order-button" disabled>Bestel</button>
                     </form>
                 <?php endif; ?>
 
@@ -206,6 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                             const selectedSize = this.dataset.size;
                             document.getElementById('selected-size').value = selectedSize;
                             document.getElementById('selected-size-display').textContent = selectedSize;
+                            document.getElementById('add-to-cart-button').disabled = false;
+                            document.getElementById('order-button').disabled = false;
                         });
                         sizesContainer.appendChild(button);
                     });
