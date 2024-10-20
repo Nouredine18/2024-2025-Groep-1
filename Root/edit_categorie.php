@@ -76,6 +76,45 @@ $conn->close();
     <title>Categorie Bewerken</title>
 </head>
 <body>
+    <style>body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    color: #333;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="submit"] {
+    padding: 10px 15px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+</style>
     <h1>Categorie Bewerken</h1>
     <form action="edit_categorie.php?id=<?php echo $categorie_id; ?>" method="post">
         <label for="categorie">Categorie naam:</label>
@@ -83,6 +122,6 @@ $conn->close();
         <input type="hidden" name="categorie_id" value="<?php echo htmlspecialchars($categorie_id); ?>">
         <input type="submit" value="Bijwerken">
     </form>
-    <a href="jouw_overzichtspagina.php">Terug naar overzicht</a>
+    <a href="add_wijzig_categorie.php">Terug naar overzicht</a>
 </body>
 </html>

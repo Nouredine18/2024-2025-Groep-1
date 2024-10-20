@@ -150,8 +150,10 @@ nav ul li a:hover {
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="cart.php">Winkelwagen (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
                 <li><a href="logout.php">Uitloggen</a></li>
+                <li><a href="complete_profile.php"></a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
                     <li><a href="adminPanel.php">Admin Panel</a></li>
+                    
                 <?php endif; ?>
                 <li><a href="#">Welkom, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>

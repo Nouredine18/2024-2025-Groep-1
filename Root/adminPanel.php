@@ -209,6 +209,7 @@ $result = $conn->query($sql);
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
                     <li><a href="add_product.php">Product Toevoegen</a></li>
                     <li><a href="add_variant.php">Variant Toevoegen</a></li>
+                    <li><a href="add_wijzig_categorie.php">categories</a></li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
