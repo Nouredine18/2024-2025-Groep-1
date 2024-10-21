@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
     exit();
 }
 
-// Verwerk voorraadupdates
+// Voorraad update functionaliteit (bestaande code)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
     $product_id = $_POST['product_id']; // Dit is de variantnr
     $new_stock = $_POST['new_stock'];
@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
     if ($stmt_update) {
         $stmt_update->bind_param("ii", $new_stock, $product_id);
         if ($stmt_update->execute()) {
-            // Succesmelding
             $success_message = "Voorraad succesvol bijgewerkt.";
         } else {
             $error_message = "Fout bij het bijwerken van de voorraad.";
@@ -33,6 +32,47 @@ $sql = "SELECT pv.variantnr, p.naam, pv.kleur, pv.maat, pv.stock
         FROM ProductVariant pv 
         JOIN Products p ON pv.artikelnr = p.artikelnr";
 $result = $conn->query($sql);
+
+// Kortingscodes tijdelijk opslaan (voor US004)
+$discount_codes = [];
+
+// Verwerk kortingscode toevoegingen
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_discount_code'])) {
+    $code = $_POST['code'];
+    $discount_percentage = $_POST['discount_percentage'];
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+
+    // Voeg de kortingscode toe aan de array
+    $discount_codes[] = [
+        'code' => $code,
+        'discount_percentage' => $discount_percentage,
+        'start_date' => $start_date,
+        'end_date' => $end_date,
+    ];
+
+    $success_message = "Kortingscode succesvol toegevoegd.";
+}
+
+// Verwerk het toevoegen van nieuwe klanten (voor US003)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $address = $_POST['address'];
+
+    // Voeg klant toe (voor deze versie gebruiken we gewoon de sessie als voorbeeld)
+    $_SESSION['customers'][] = [
+        'first_name' => $first_name,
+        'last_name' => $last_name,
+        'email' => $email,
+        'phone' => $phone,
+        'address' => $address
+    ];
+
+    $success_message = "Nieuwe klant succesvol toegevoegd.";
+}
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +80,7 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Beheer Voorraad</title>
+    <title>Admin Panel - Beheer</title>
     <link rel="stylesheet" href="css/style.css"> 
     <style>
         main {
@@ -98,8 +138,8 @@ $result = $conn->query($sql);
             align-items: center;
         }
 
-        input[type="number"] {
-            width: 60px;
+        input[type="number"], input[type="text"], input[type="email"], input[type="tel"], input[type="datetime-local"] {
+            width: 100%;
             margin-right: 10px;
         }
 
@@ -115,84 +155,6 @@ $result = $conn->query($sql);
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
-
-        footer {
-            background-color: #333;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-        }
-
-        footer p {
-            margin: 0;
-            padding: 10px 0;
-        }
-
-        .social-media {
-            margin-top: 10px;
-        }
-
-        .social-media h3 {
-            margin-bottom: 10px;
-        }
-
-        .social-media ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .social-media ul li {
-            display: inline;
-        }
-
-        .social-media ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
-            transition: color 0.3s;
-        }
-
-        .social-media ul li a:hover {
-            color: #007bff;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-        }
-
-        .logo {
-            font-size: 1.5em;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        nav ul li {
-            display: inline;
-        }
-
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 15px;
-            transition: background-color 0.3s;
-        }
-
-        nav ul li a:hover {
-            background-color: #007bff;
-        }
     </style>
 </head>
 <body>
@@ -207,9 +169,6 @@ $result = $conn->query($sql);
                     <li><a href="add_product.php">Voeg Product Toe</a></li>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
-                    <li><a href="add_product.php">Product Toevoegen</a></li>
-                    <li><a href="add_variant.php">Variant Toevoegen</a></li>
-                    <li><a href="add_wijzig_categorie.php">categories</a></li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
@@ -228,6 +187,7 @@ $result = $conn->query($sql);
         <div class="error"><?php echo $error_message; ?></div>
     <?php endif; ?>
 
+    <!-- Voorraadbeheer -->
     <table>
         <thead>
             <tr>
@@ -248,7 +208,7 @@ $result = $conn->query($sql);
                         <td><?php echo htmlspecialchars($row['stock']); ?></td>
                         <td>
                             <form action="" method="post">
-                                <input type="hidden" name="product_id" value="<?php echo $row['variantnr']; ?>"> <!-- Zorg ervoor dat dit de juiste variantnr is -->
+                                <input type="hidden" name="product_id" value="<?php echo $row['variantnr']; ?>">
                                 <input type="number" name="new_stock" value="<?php echo $row['stock']; ?>" min="0">
                                 <input type="submit" name="update_stock" value="Bijwerken">
                             </form>
@@ -262,6 +222,75 @@ $result = $conn->query($sql);
             <?php endif; ?>
         </tbody>
     </table>
+
+    <!-- Toevoegen van nieuwe klanten (US003) -->
+    <h2>Nieuwe klant toevoegen</h2>
+    <form action="" method="post">
+        <label for="first_name">Voornaam:</label>
+        <input type="text" name="first_name" required>
+        
+        <label for="last_name">Achternaam:</label>
+        <input type="text" name="last_name" required>
+        
+        <label for="email">E-mail:</label>
+        <input type="email" name="email" required>
+        
+        <label for="phone">Telefoonnummer:</label>
+        <input type="tel" name="phone" required>
+        
+        <label for="address">Adres:</label>
+        <input type="text" name="address" required>
+        
+        <input type="submit" name="add_customer" value="Voeg klant toe">
+    </form>
+
+    <!-- Kortingscodes beheren (US004) -->
+    <h2>Kortingscodes beheren</h2>
+    <form action="" method="post">
+        <label for="code">Kortingscode:</label>
+        <input type="text" name="code" required>
+        
+        <label for="discount_percentage">Kortingspercentage (%):</label>
+        <input type="number" name="discount_percentage" required min="0" max="100">
+        
+        <label for="start_date">Startdatum:</label>
+        <input type="datetime-local" name="start_date" required>
+        
+        <label for="end_date">Einddatum:</label>
+        <input type="datetime-local" name="end_date" required>
+        
+        <input type="submit" name="add_discount_code" value="Voeg Kortingscode Toe">
+    </form>
+
+    <!-- Kortingscodes tonen -->
+    <h3>Bestaande Kortingscodes</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Kortingscode</th>
+                <th>Kortingspercentage</th>
+                <th>Startdatum</th>
+                <th>Einddatum</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($discount_codes)): ?>
+                <?php foreach ($discount_codes as $discount_code): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($discount_code['code']); ?></td>
+                        <td><?php echo htmlspecialchars($discount_code['discount_percentage']); ?>%</td>
+                        <td><?php echo htmlspecialchars($discount_code['start_date']); ?></td>
+                        <td><?php echo htmlspecialchars($discount_code['end_date']); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="4">Geen kortingscodes beschikbaar.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
 </main>
 
 <footer>
