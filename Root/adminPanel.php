@@ -169,6 +169,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
                     <li><a href="add_product.php">Voeg Product Toe</a></li>
                     <li><a href="manage_products.php">Beheer Producten</a></li>
                     <li><a href="active_deactivate_show_users.php">Users</a></li>
+                    <li><a href="index.php">Home</a></li>
+                    <li><a href="admin_chat.php">Admin Chat Board</a></li>
+                    <li><a href="customer_support.php">Customer Support</a></li>
+                    <li><a href="logout.php">Logout</a></li>
+
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>

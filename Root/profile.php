@@ -235,5 +235,9 @@ input[type="submit"]:hover {
             <input type="submit" name="edit_address" value="Adres Wijzigen">
         </form>
     <?php endif; ?>
+    <form method="post" action="submit_question.php">
+    <textarea name="question" required></textarea>
+    <button type="submit">Submit Question</button>
+</form>
 </body>
 </html>

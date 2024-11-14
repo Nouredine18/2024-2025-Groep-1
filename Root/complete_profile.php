@@ -42,6 +42,7 @@ if (isset($_POST['complete_profile'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Profile</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <h2>Complete Your Profile</h2>
@@ -50,5 +51,10 @@ if (isset($_POST['complete_profile'])) {
         <input type="text" name="familyName" required><br>
         <input type="submit" name="complete_profile" value="Complete Profile">
     </form>
+    <form method="post" action="submit_question.php">
+    <textarea name="question" required></textarea>
+    <button type="submit">Submit Question</button>
+</form>
+<a href="view_support.php">View My Support Questions</a>
 </body>
 </html>
