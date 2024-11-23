@@ -179,6 +179,7 @@ include('header.php');
                         </tr>
                     </table>
                     <button type="submit" name="update_cart">Update Cart</button>
+                    <button type="submit" name="pay" formaction="payement.php">Pay</button>
                 </form>
             <?php else: ?>
                 <p class="empty-cart">Your cart is empty.</p>

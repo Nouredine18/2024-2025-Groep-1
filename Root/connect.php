@@ -1,8 +1,13 @@
 <?php
-$servername = "srv1514.hstgr.io";
+/* $servername = "srv1514.hstgr.io";
 $username = "u220407022_dbfootwear";
 $password = "TeamNouredine3";
-$dbname = "u220407022_dbfootwear";
+$dbname = "u220407022_dbfootwear"; */
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "footwear_db";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
