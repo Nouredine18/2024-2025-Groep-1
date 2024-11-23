@@ -172,6 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
                     <li><a href="index.php">Home</a></li>
                     <li><a href="admin_chat.php">Admin Chat Board</a></li>
                     <li><a href="customer_support.php">Customer Support</a></li>
+                    <li><a href="admin_payment_methods.php">Admin Payment Methods</a></li>
                     <li><a href="logout.php">Logout</a></li>
 
                 <?php endif; ?>

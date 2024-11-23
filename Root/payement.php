@@ -10,6 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Check if Stripe payment method is enabled
+$sql = "SELECT is_enabled FROM payment_methods WHERE method_name = 'Stripe'";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+
+if (!$row['is_enabled']) {
+    die("Stripe payment method is currently disabled.");
+}
+
 $sql = "SELECT p.naam, pv.kleur, pv.maat, c.aantal, p.prijs, c.artikelnr, c.variantnr 
         FROM Cart c 
         JOIN ProductVariant pv ON c.artikelnr = pv.artikelnr AND c.variantnr = pv.variantnr
@@ -45,14 +54,10 @@ $session = \Stripe\Checkout\Session::create([
     'payment_method_types' => ['card'],
     'line_items' => [$line_items],
     'mode' => 'payment',
-    'success_url' => 'http://localhost/project/2024-2025-Groep-1/Root/success.php',
+    'success_url' => 'http://localhost/project/2024-2025-Groep-1/Root/success.php?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => 'http://localhost/project/2024-2025-Groep-1/Root/cancel.php',
 ]);
 
 header("Location: " . $session->url);
 exit();
 ?>
-
-<!-- http://localhost/project/2024-2025-Groep-1/Root/success.php
-
-http://localhost/project/2024-2025-Groep-1/Root/cancel.php -->
