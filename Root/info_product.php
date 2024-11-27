@@ -3,6 +3,8 @@ include 'connect.php';
 session_start();
 
 $artikelnr = isset($_GET['artikelnr']) ? intval($_GET['artikelnr']) : 0;
+$sql = "UPDATE Products SET popularity = popularity + 1 WHERE artikelnr = $artikelnr";
+$conn->query($sql);
 
 $product = null;
 $colors = [];
@@ -30,7 +32,7 @@ while ($row = $result_colors->fetch_assoc()) {
 }
 
 // Fetch reviews
-$sql_reviews = "SELECT r.review_text, r.rating, r.review_date, u.naam FROM Reviews r JOIN User u ON r.user_id = u.user_id WHERE r.artikelnr = ? ORDER BY r.review_date DESC";
+$sql_reviews = "SELECT r.review_id, r.review_text, r.rating, r.review_date, u.naam FROM Reviews r JOIN User u ON r.user_id = u.user_id WHERE r.artikelnr = ? ORDER BY r.review_date DESC";
 $stmt_reviews = $conn->prepare($sql_reviews);
 $stmt_reviews->bind_param("i", $artikelnr);
 $stmt_reviews->execute();
@@ -50,6 +52,21 @@ if (!empty($colors)) {
     if ($result_images->num_rows > 0) {
         $row = $result_images->fetch_assoc();
         $images = explode(" | ", $row['variant_directory']);
+    }
+}
+
+// Handle review deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_review'])) {
+    if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'admin') {
+        $review_id = $_POST['review_id'];
+        $sql_delete_review = "DELETE FROM Reviews WHERE review_id = ?";
+        $stmt_delete_review = $conn->prepare($sql_delete_review);
+        $stmt_delete_review->bind_param("i", $review_id);
+        $stmt_delete_review->execute();
+        header("Location: info_product.php?artikelnr=$artikelnr");
+        exit();
+    } else {
+        echo "You do not have permission to delete reviews.";
     }
 }
 
@@ -93,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                 <h1><?php echo htmlspecialchars($product['naam'] ?? 'Productnaam'); ?></h1>
                 <div class="price">&euro;<?php echo number_format($product['prijs'] ?? 0, 2, ',', '.'); ?></div>
                 <div class="description">
-                            <h2>Productinformatie</h2>
+                    <h2>Productinformatie</h2>
                     <?php echo nl2br(htmlspecialchars($product['product_information'] ?? 'Geen beschrijving beschikbaar.')); ?>
                 </div>
                 <div class="colors">
@@ -143,6 +160,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                     <div class="rating">Rating: <?php echo htmlspecialchars($review['rating']); ?>/5</div>
                     <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
                     <small>Beoordeeld op <?php echo htmlspecialchars($review['review_date']); ?></small>
+                    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'admin'): ?>
+                        <form method="post" action="">
+                            <input type="hidden" name="review_id" value="<?php echo $review['review_id']; ?>">
+                            <button type="submit" name="delete_review">Verwijder</button>
+                        </form>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
 
