@@ -160,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
 <body>
 <header>
     <div class="logo">SchoenenWijns</div>
+    <link rel="stylesheet" href="">
     <nav>
         <ul>
             <li><a href="index.php">Home</a></li>
@@ -173,8 +174,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
                     <li><a href="admin_chat.php">Admin Chat Board</a></li>
                     <li><a href="customer_support.php">Customer Support</a></li>
                     <li><a href="admin_payment_methods.php">Admin Payment Methods</a></li>
-                    <li><a href="logout.php">Logout</a></li>
-
+                    <li><a href="viewcount_cart.php">View Count Cart</a></li>
+                    <li><a href="view_bestellingen.php">View Count Users</a></li>
+                    <li><a href="add_brand.php">Add Brand</a></li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
@@ -182,6 +184,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
             <?php endif; ?>
         </ul>
     </nav>
+
+    <style>
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #007bff;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 4px 2px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .btn-edit {
+            background-color: #28a745;
+        }
+
+        .btn-edit:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+    </style>
 </header>
 
 <main>
