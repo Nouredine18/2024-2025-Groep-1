@@ -131,8 +131,8 @@ include('header.php');
 <div class="content">
     <main>
         <div class="hero">
-            <h1>Welkom bij FootWear | Adidas</h1>
-            <p>Ontdek de nieuwste collectie van Adidas, ontworpen voor comfort en stijl.</p>
+            <h1>Welkom bij Schoenen Wijns | PHP</h1>
+            <p>Ontdek de nieuwste collecties van je favoriete merken.</p>
         </div>
 
         <!-- Hero Image -->
