@@ -2,11 +2,39 @@
 include 'connect.php';
 session_start();
 
-// Controleer of de gebruiker is ingelogd en admin is
+$maintenance_status = 0;
+
+$htaccess_path = '.htaccess';
+if (file_exists($htaccess_path)) {
+    $htaccess_content = file_get_contents($htaccess_path);
+    if (strpos($htaccess_content, "RewriteRule ^(.*)$ /maintenance.html [R=503,L]") !== false) {
+        $maintenance_status = 1;
+    }
+}
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] != 'admin') {
-    header("Location: login_register.php"); // Redirect naar login als niet ingelogd
+    header("Location: login_register.php");
     exit();
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_maintenance'])) {
+    $maintenance_status = $_POST['maintenance_status'];
+
+    if ($maintenance_status == 1) {
+        // Add maintenance redirect rule
+        $htaccess_content = "RewriteEngine On\n";
+        $htaccess_content .= "RewriteCond %{REMOTE_ADDR} !^84\\.198\\.155\\.\n"; // Allow IP range 84.198.155.*
+        $htaccess_content .= "RewriteCond %{REQUEST_URI} !^/maintenance.html\n"; // Skip maintenance page
+        $htaccess_content .= "RewriteRule ^(.*)$ /maintenance.html [R=503,L]\n";
+        $htaccess_content .= "ErrorDocument 503 /maintenance.html\n";
+        $htaccess_content .= "Header always set Retry-After \"3600\"\n"; // Optional retry after 1 hour
+    } else {
+        // Disable maintenance mode
+        $htaccess_content = "# Maintenance mode disabled\n";
+    }
+        file_put_contents($htaccess_path, $htaccess_content);
+}
+    
 
 // Voorraad update functionaliteit (bestaande code)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_stock'])) {
