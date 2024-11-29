@@ -29,7 +29,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FootWear | Home</title>
+    <title>Schoenen Wijns</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 
@@ -137,41 +137,8 @@ include('header.php');
 
         <!-- Hero Image -->
         <img src="images_main/adidas_hero.png" alt="Hero Image" class="hero-image">
-
-        <div class="container">
-            <?php
-            // SQL-query om producten op te halen
-            $sql = "SELECT artikelnr, naam, prijs, directory FROM Products";
-            $result = $conn->query($sql);
-
-            if ($result && $result->num_rows > 0):  // Controleer of de query resultaten heeft opgeleverd
-                while ($row = $result->fetch_assoc()): 
-            ?>
-                <div class="product-card-container"> <!-- Product item container -->
-                    <div class="product-card">
-                        <!-- Toon productafbeelding -->
-                        <a href="info_product.php?artikelnr=<?php echo $row['artikelnr']; ?>">
-                            <?php if (!empty($row['directory'])): ?>
-                                <img src="<?php echo htmlspecialchars($row['directory']); ?>" alt="<?php echo htmlspecialchars($row['naam']); ?>" class="product-image">
-                            <?php else: ?>
-                                <img src="directory/default.jpg" alt="Geen afbeelding beschikbaar" class="product-image">
-                            <?php endif; ?>
-                        </a>
-                        
-                        <div class="product-info">
-                            <div class="product-title"><?php echo htmlspecialchars($row['naam']); ?></div> <!-- Toon de productnaam -->
-                            <div class="product-category">Categorie</div> <!-- Voorbeeld categorie -->
-                            <div class="product-price">€<?php echo number_format($row['prijs'], 2, ',', '.'); ?></div> <!-- Toon de productprijs -->
-                        </div>
-                    </div>
-                </div>
-            <?php 
-                endwhile;
-            else: 
-                echo "<p>Momenteel geen producten beschikbaar.</p>";
-            endif;
-            ?>
-        </div>
+        <h1>Site is under construction 🏗️</h1>
+        <a href="products.php">Bekijk onze producten</a>
     </main>
 </div>
 
