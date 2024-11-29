@@ -300,6 +300,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
 </header>
 
 <main>
+<form action="" method="post">
+        <h2>Maintenance Mode</h2>
+        <p>Status: <?php echo $maintenance_status ? 'AAN' : 'UIT'; ?></p>
+        <input type="hidden" name="maintenance_status" value="<?php echo $maintenance_status ? 0 : 1; ?>">
+        <input type="submit" name="toggle_maintenance" value="<?php echo $maintenance_status ? 'Schakel UIT' : 'Schakel AAN'; ?>">
+    </form>
+    
     <h1>Beheer Voorraad van Producten</h1>
 
     <?php if (isset($success_message)) : ?>
