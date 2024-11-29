@@ -6,8 +6,8 @@ $dbname = "u220407022_dbfootwear";
 
 $servername = "localhost";
 $username = "root";
-$password = "";
-$dbname = "footwear_db";
+$password = "";  
+$dbname = "u220407022_dbfootwear";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
