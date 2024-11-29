@@ -120,6 +120,16 @@ class ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'PayPal' => 
+            array (
+                0 => __DIR__ . '/..' . '/paypal/rest-api-sdk-php/lib',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Google_AccessToken_Revoke' => __DIR__ . '/..' . '/google/apiclient/src/aliases.php',
@@ -149,6 +159,7 @@ class ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee::$prefixesPsr0;
             $loader->classMap = ComposerStaticInita1ca9f24df1dbf6ac51cc85d74a58bee::$classMap;
 
         }, null, ClassLoader::class);

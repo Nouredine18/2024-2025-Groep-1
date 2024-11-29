@@ -33,7 +33,7 @@ $result = $conn->query($sql);
                     <tr>
                         <th>Order ID</th>
                         <th>Customer Name</th>
-                        <>
+                      
                         <th>Details</th>
                     </tr>
                 </thead>

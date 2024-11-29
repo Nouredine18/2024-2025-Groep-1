@@ -1,5 +1,5 @@
 <?php
-// Start de sessie alleen als deze nog niet actief is
+// Start the session only if it is not already active
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,9 +12,9 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
 
-    <title>Schoenen Wijns | BE</title>
+    <title>FootWear | BE</title>
     <style>
-    /* General reset for margins and paddings */
+     /* General reset for margins and paddings */
 * {
     margin: 0;
     padding: 0;
@@ -35,11 +35,6 @@ header {
     border-bottom: 1px solid #e5e5e5;
 }
 
-.navbar {
-    display: flex;
-    align-items: center;
-}
-
 /* Logo styles */
 .logo img {
     height: 40px; /* Adjust this to the size of your logo */
@@ -53,7 +48,7 @@ nav ul {
 }
 
 nav ul li {
-    margin: 0 10px;
+    margin: 0 15px;
 }
 
 nav ul li a {
@@ -75,7 +70,7 @@ nav ul li a:hover {
 }
 
 .header-icons a {
-    margin-left: 0px;
+    margin-left: 20px;
     color: #333;
     text-decoration: none;
     font-size: 18px;
@@ -94,7 +89,7 @@ nav ul li a:hover {
 .search-form {
     display: flex;
     align-items: center;
-    margin-left: 0px; /* Add some space between the nav and search */
+    margin-left: 20px; /* Add some space between the nav and search */
 }
 
 .search-form input {
@@ -140,44 +135,42 @@ nav ul li a:hover {
 </head>
 <body>
 <header>
-    <div class="navbar">
     <div class="logo">
-        <img src="images_main/Logo.png" alt="FootWear BE">
+        <img src="images_main/adidas.jpg" alt="FootWear BE">
     </div>
     <nav>
         <ul>
             <li><a href="index.php">Home</a></li>
-            <li><a href="products.php">Products</a></li>
+            
+            <!-- <li><a href="new_featured.php">Nieuw en uitgelicht</a></li>
             <li><a href="mens.php">Heren</a></li>
             <li><a href="womens.php">Dames</a></li>
-            <li><a href="kids.php">Kids</a></li>
-            <li><a href="sale.php">Sale</a></li>
+            <li><a href="sale.php">Sale</a></li> -->
+
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="cart.php">Winkelwagen (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
-        </ul>
-    </nav>
-    </div>
-    <h1>Schoenen Wijns</h1>
-    <div class="navbar">
-    <form method="POST" action="search.php" class="search-form">
-        <input type="text" name="zoekresultaat" placeholder="Zoek producten..." required>
-        <button type="submit">Zoeken</button>
-    </form>
-        <nav>
-        <ul>
-    <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="adminPanel.php">Admin Panel</a></li>
-                <?php endif; ?>
                 <li><a href="logout.php">Uitloggen</a></li>
+                <li><a href="view_bestellingen.php">View Count Users</a></li>
+                <li><a href="complete_profile.php"></a></li>
+                <?php if ($_SESSION['user_type'] == 'admin'): ?>
+                    <li><a href="adminPanel.php">Admin Panel</a></li>
+                    
+                <?php endif; ?>
+                <li><a href="#">Welkom, <?php echo $_SESSION['voornaam']; ?></a></li>
             <?php else: ?>
                 <li><a href="login_register.php">Inloggen/Registreren</a></li>
             <?php endif; ?>
-                    </ul>
+        </ul>
     </nav>
-            
+    <!-- Search Form -->
+<form method="POST" action="search.php" class="search-form">
+    <input type="text" name="zoekresultaat" placeholder="Zoek producten..." required>
+    <button type="submit">Zoeken</button>
+</form>
+    
     <div class="header-icons">
-        <a href="profile.php"><img src="images_main/profile-user.png" alt="Profiel" style="width:30px; height:30px; border-radius:50%;"></a>
-    </div>
+        <a href="favorites.php"><i class="fa fa-heart"></i></a>
+        <a href="cart.php"><i class="fa fa-shopping-cart"></i></a>
     </div>
 </header>
 
