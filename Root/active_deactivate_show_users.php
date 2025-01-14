@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Zoek op gebruiker
     if (isset($_POST["indienen"])) {
         $zoekresultaat = $_POST["zoekresultaat"];
-        $sql = "SELECT * FROM `User` WHERE naam LIKE ? AND user_type='user'";
+        $sql = "SELECT * FROM User WHERE naam LIKE ? AND user_type='user'";
         $searchparameter = '%' . $zoekresultaat . '%';
 
         $stmt = $conn->prepare($sql);
@@ -229,7 +229,7 @@ if (!isset($conn)) {
     <form action="active_deactivate_show_users.php" method="post" class="form-inline">
         <label for="zoekresultaat">Geef de gebruiker in van de persoon:</label>
         <input type="text" name="zoekresultaat" id="zoekresultaat" required>
-        <input type="submi!t" name="indienen" value="Zoeken" class="btn btn-activate">
+        <input type="submit" name="indienen" value="Zoeken" class="btn btn-activate">
     </form>
 
     <?php if ($successMessage): ?>
@@ -244,6 +244,7 @@ if (!isset($conn)) {
                 <th>Voornaam</th>
                 <th>UserID</th>
                 <th>Actief</th>
+                <th>Punten</th>
                 <th>Acties</th>
                 <th>Aanpassen</th>
             </tr>
@@ -256,6 +257,7 @@ if (!isset($conn)) {
                         <td><?php echo htmlspecialchars($row["voornaam"]); ?></td>
                         <td><?php echo htmlspecialchars($row["user_id"]); ?></td>
                         <td><?php echo ($row["actief"] == 0 ? "Niet actief" : "Wel actief"); ?></td>
+                        <td><?php echo htmlspecialchars($row["punten"] ?? 0); ?></td>
                         <td>
                             <form action='active_deactivate_show_users.php' method='post' style='display:inline;'>
                                 <input type='hidden' name='userid' value='<?php echo $row["user_id"]; ?>'>
@@ -296,7 +298,7 @@ if (!isset($conn)) {
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
-                <tr><td colspan='6'>Geen overeenkomstige gebruikers gevonden.</td></tr>
+                <tr><td colspan='7'>Geen overeenkomstige gebruikers gevonden.</td></tr>
             <?php endif; ?>
         </tbody>
     </table>

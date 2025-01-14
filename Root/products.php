@@ -1,6 +1,49 @@
 <?php
 include 'connect.php';
 session_start();
+
+// Check if the popup was shown in the last hour
+if (!isset($_SESSION['last_popup']) || (time() - $_SESSION['last_popup']) > 3600) {
+    $_SESSION['show_popup'] = true;
+    $_SESSION['last_popup'] = time();
+} else {
+    $_SESSION['show_popup'] = false;
+}
+
+// Check if the user is logged in and is a customer
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+
+    // Query to find the most purchased brand by the user
+    $brandQuery = "
+        SELECT p.merk, COUNT(bp.artikelnr) as count
+        FROM BoughtProducts bp
+        JOIN Products p ON bp.artikelnr = p.artikelnr
+        WHERE bp.user_id = ?
+        GROUP BY p.merk
+        ORDER BY count DESC
+        LIMIT 1
+    ";
+    $stmt = $conn->prepare($brandQuery);
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $brandResult = $stmt->get_result();
+    $mostPurchasedBrand = $brandResult->fetch_assoc()['merk'] ?? null;
+
+    // Fetch products of the most purchased brand
+    if ($mostPurchasedBrand) {
+        $recommendedQuery = "
+            SELECT artikelnr, naam, prijs, directory
+            FROM Products
+            WHERE merk = ?
+            LIMIT 5
+        ";
+        $stmt = $conn->prepare($recommendedQuery);
+        $stmt->bind_param('s', $mostPurchasedBrand);
+        $stmt->execute();
+        $recommendedResult = $stmt->get_result();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -142,13 +185,105 @@ session_start();
             bottom: 0;
             font-size: 14px;
         }
+
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+        }
+
+        .popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Recommended section styles */
+        .recommended {
+            width: 100%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .recommended h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .recommended .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
 
     <?php include 'header.php'; ?>
+    <?php include 'popups.php'; ?> <!-- Include advertisement section -->
+
+    <?php if ($_SESSION['show_popup']): ?>
+        <div class="popup-overlay"></div>
+        <div class="popup">
+            <button class="close-btn">&times;</button>
+            <h2>Special Offer!</h2>
+            <p><?= htmlspecialchars($popupMessage) ?></p>
+        </div>
+    <?php endif; ?>
 
     <div class="container">
+        <!-- Recommended Products Section -->
+        <?php if (isset($recommendedResult) && $recommendedResult->num_rows > 0): ?>
+            <div class="recommended">
+                <h3>Recommended for You</h3>
+                <div class="products">
+                    <?php while ($row = $recommendedResult->fetch_assoc()): ?>
+                        <div class="product-card">
+                            <a href="info_product.php?artikelnr=<?= htmlspecialchars($row['artikelnr']) ?>">
+                                <img src="directory/<?= htmlspecialchars($row['directory']) ?>" alt="<?= htmlspecialchars($row['naam']) ?>">
+                            </a>
+                            <div class="info">
+                                <h4><?= htmlspecialchars($row['naam']) ?></h4>
+                                <p>€<?= number_format($row['prijs'], 2) ?></p>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Sidebar -->
         <div class="sidebar">
             <h3>Filter Options</h3>
@@ -302,5 +437,23 @@ session_start();
     <div class="footer">
         <p>&copy; 2024 Schoenen Wijns - All Rights Reserved</p>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const popup = document.querySelector('.popup');
+            const overlay = document.querySelector('.popup-overlay');
+            const closeBtn = document.querySelector('.popup .close-btn');
+
+            if (popup && overlay) {
+                popup.style.display = 'block';
+                overlay.style.display = 'block';
+
+                closeBtn.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
