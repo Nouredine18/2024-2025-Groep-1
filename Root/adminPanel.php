@@ -109,68 +109,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Beheer</title>
-    <link rel="stylesheet" href="css/style.css"> 
     <style>
-        main {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-
-        h1 {
-            text-align: center;
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
         }
-
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
         .success, .error {
             text-align: center;
             padding: 10px;
             margin-bottom: 20px;
             border-radius: 5px;
         }
-
         .success {
             background-color: #d4edda;
             color: #155724;
         }
-
         .error {
             background-color: #f8d7da;
             color: #721c24;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #e5e5e5;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
         form {
             display: flex;
             align-items: center;
         }
-
         input[type="number"], input[type="text"], input[type="email"], input[type="tel"], input[type="datetime-local"] {
             width: 100%;
             margin-right: 10px;
         }
-
         input[type="submit"] {
             padding: 5px 10px;
             background-color: #007bff;
@@ -179,7 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
             border-radius: 3px;
             cursor: pointer;
         }
-
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
@@ -195,17 +174,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="logout.php">Logout</a></li>
                 <?php if ($_SESSION['user_type'] == 'admin'): ?>
-                    <li><a href="add_product.php">Voeg Product Toe</a></li>
-                    <li><a href="manage_products.php">Beheer Producten</a></li>
-                    <li><a href="overview_facturen.php">Beheer Facturen</a></li>
-                    <li><a href="active_deactivate_show_users.php">Users</a></li>
-                    <li><a href="index.php">Home</a></li>
-                    <li><a href="admin_chat.php">Admin Chat Board</a></li>
-                    <li><a href="customer_support.php">Customer Support</a></li>
-                    <li><a href="admin_payment_methods.php">Admin Payment Methods</a></li>
-                    <li><a href="viewcount_cart.php">View Count Cart</a></li>
-                    <li><a href="view_bestellingen.php">View Count Users</a></li>
-                    <li><a href="add_brand.php">Add Brand</a></li>
+                    <li>
+                        <a href="#">Admin Menu</a>
+                        <ul>
+                            <li><a href="adminPanel.php">Panel</a></li>
+                            <li><a href="add_product.php">Add Product</a></li>
+                            <li><a href="manage_products.php">Manage Products</a></li>
+                            <li><a href="overview_facturen.php">Manage Invoices</a></li>
+                            <li><a href="active_deactivate_show_users.php">Users</a></li>
+                            <li><a href="admin_chat.php">Admin Chat Board</a></li>
+                            <li><a href="customer_support.php">Customer Support</a></li>
+                            <li><a href="admin_payment_methods.php">Admin Payment Methods</a></li>
+                            <li><a href="viewcount_cart.php">View Count Cart</a></li>
+                            <li><a href="view_bestellingen.php">View Count Users</a></li>
+                            <li><a href="add_brand.php">Add Brand</a></li>
+                            <li><a href="stock_overview.php">Stock Overview</a></li>
+                            <li><a href="most_sold_products.php">Most Sold Products</a></li>
+                            <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
+                            <li><a href="customer_feedback.php">Customer Feedback</a></li>
+                        </ul>
+                    </li>
                 <?php endif; ?>
                 <li><a href="#">Welcome, <?php echo htmlspecialchars($_SESSION['voornaam']); ?></a></li>
             <?php else: ?>
@@ -237,6 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
 
         nav ul li {
             display: inline;
+            position: relative;
         }
 
         nav ul li a {
@@ -247,6 +236,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
         }
 
         nav ul li a:hover {
+            background-color: #007bff;
+        }
+        nav ul li ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #333;
+            padding: 0;
+            list-style: none;
+            min-width: 200px;
+        }
+        nav ul li:hover ul {
+            display: block;
+        }
+        nav ul li ul li {
+            display: block;
+        }
+        nav ul li ul li a {
+            padding: 10px;
+            display: block;
+        }
+        nav ul li ul li a:hover {
             background-color: #007bff;
         }
 

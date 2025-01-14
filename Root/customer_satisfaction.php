@@ -1,31 +1,28 @@
 <?php
-// Verbinden met de database
 include 'connect.php';
 session_start();
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Controleer verbinding
-if ($conn->connect_error) {
-    die("Verbinding mislukt: " . $conn->connect_error);
+// Check if the user is an admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+    header("Location: login_register.php");
+    exit();
 }
 
-// Query om openstaande facturen op te halen
-$sql = "SELECT f.bestelling_id, f.user_id, f.address_id, f.oorspronkelijke_prijs, 
-               f.reductie, f.betalingsmethode, a.straat, a.huisnummer, a.postcode, a.stad, a.land
-        FROM factuur f
-        LEFT JOIN Adres a ON f.address_id = a.address_id
-        WHERE f.oorspronkelijke_prijs - f.reductie > 0"; // Alleen facturen met een openstaand bedrag
-
+// Fetch customer reviews and ratings
+$sql = "SELECT r.review_text, r.rating, r.review_date, u.voornaam, u.naam, p.naam AS product_name
+        FROM Reviews r
+        JOIN User u ON r.user_id = u.user_id
+        JOIN Products p ON r.artikelnr = p.artikelnr
+        ORDER BY r.review_date DESC";
 $result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Overzicht Openstaande Facturen</title>
+    <title>Customer Satisfaction</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -132,6 +129,7 @@ $result = $conn->query($sql);
                             <li><a href="add_brand.php">Add Brand</a></li>
                             <li><a href="stock_overview.php">Stock Overview</a></li>
                             <li><a href="most_sold_products.php">Sold Products Overview</a></li>
+                            <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>
@@ -143,50 +141,35 @@ $result = $conn->query($sql);
     </nav>
 </header>
 
-<h1>Overzicht van Openstaande Facturen</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Factuurnummer</th>
-            <th>Klant ID</th>
-            <th>Adres</th>
-            <th>Oorspronkelijke Prijs (€)</th>
-            <th>Reductie (€)</th>
-            <th>Openstaand Bedrag (€)</th>
-            <th>Betalingsmethode</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
+<h1>Customer Satisfaction</h1>
+<div class="customer-reviews">
+    <?php if ($result && $result->num_rows > 0): ?>
+        <table>
+            <thead>
                 <tr>
-                    <td><?= htmlspecialchars($row['bestelling_id']); ?></td>
-                    <td><?= htmlspecialchars($row['user_id']); ?></td>
-                    <td>
-                        <?= htmlspecialchars($row['straat']) . " " . 
-                            htmlspecialchars($row['huisnummer']) . ", " . 
-                            htmlspecialchars($row['postcode']) . " " . 
-                            htmlspecialchars($row['stad']) . ", " . 
-                            htmlspecialchars($row['land']); ?>
-                    </td>
-                    <td><?= number_format($row['oorspronkelijke_prijs'], 2); ?></td>
-                    <td><?= number_format($row['reductie'], 2); ?></td>
-                    <td><?= number_format($row['oorspronkelijke_prijs'] - $row['reductie'], 2); ?></td>
-                    <td><?= htmlspecialchars($row['betalingsmethode']); ?></td>
+                    <th>Customer Name</th>
+                    <th>Product Name</th>
+                    <th>Rating</th>
+                    <th>Review</th>
+                    <th>Date</th>
                 </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="7">Geen openstaande facturen gevonden.</td>
-            </tr>
-        <?php endif; ?>
-    </tbody>
-</table>
-<a href="adminPanel.php" style="display: inline-block; margin-top: 20px; padding: 10px 15px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px;">Terug naar Admin Panel</a>
+            </thead>
+            <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['voornaam'] . ' ' . $row['naam']); ?></td>
+                        <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['rating']); ?></td>
+                        <td><?php echo htmlspecialchars($row['review_text']); ?></td>
+                        <td><?php echo htmlspecialchars($row['review_date']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p>No reviews found.</p>
+    <?php endif; ?>
+</div>
 
 </body>
 </html>
-
-<?php
-$conn->close();
-?>
