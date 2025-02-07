@@ -122,18 +122,23 @@ $result = $conn->query($sql);
                     <li>
                         <a href="#">Admin Menu</a>
                         <ul>
+                            <li><a href="adminPanel.php">Panel</a></li>
                             <li><a href="add_product.php">Add Product</a></li>
                             <li><a href="manage_products.php">Manage Products</a></li>
                             <li><a href="overview_facturen.php">Manage Invoices</a></li>
+                            <li><a href="active_discounts.php">Active discounts</a></li>
                             <li><a href="active_deactivate_show_users.php">Users</a></li>
                             <li><a href="admin_chat.php">Admin Chat Board</a></li>
                             <li><a href="customer_support.php">Customer Support</a></li>
                             <li><a href="admin_payment_methods.php">Admin Payment Methods</a></li>
                             <li><a href="viewcount_cart.php">View Count Cart</a></li>
                             <li><a href="view_bestellingen.php">View Count Users</a></li>
+                            <li><a href="overview_discounts.php">View Discounts</a></li>
                             <li><a href="add_brand.php">Add Brand</a></li>
                             <li><a href="stock_overview.php">Stock Overview</a></li>
-                            <li><a href="most_sold_products.php">Sold Products Overview</a></li>
+                            <li><a href="most_sold_products.php">Most Sold Products</a></li>
+                            <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
+                            <li><a href="customer_feedback.php">Customer Feedback</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>
