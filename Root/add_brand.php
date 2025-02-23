@@ -133,8 +133,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
                             <li><a href="viewcount_cart.php">View Count Cart</a></li>
                             <li><a href="view_bestellingen.php">View Count Users</a></li>
                             <li><a href="overview_discounts.php">View Discounts</a></li>
+                            <li><a href="manage_returns.php">View Returns</a></li>
                             <li><a href="add_brand.php">Add Brand</a></li>
                             <li><a href="stock_overview.php">Stock Overview</a></li>
+                            <li><a href="sales_statistics.php">Sales Statistics</a></li>
+                            <li><a href="analyse_returns.php">Analyse Returns</a></li>
                             <li><a href="most_sold_products.php">Most Sold Products</a></li>
                             <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
                             <li><a href="customer_feedback.php">Customer Feedback</a></li>
