@@ -14,6 +14,7 @@ if (isset($_POST['artikelnr']) && isset($_POST['kleur']) && isset($_POST['maat']
     $kleur = $_POST['kleur'];
     $maat = $_POST['maat'];
     $aantal = intval($_POST['aantal']);
+    $personal_message = isset($_POST['personal_message']) ? $_POST['personal_message'] : ''; // Retrieve personal message
 
     // Get the variantnr based on artikelnr, kleur, and maat
     $sql_variant = "SELECT variantnr FROM ProductVariant WHERE artikelnr = ? AND kleur = ? AND maat = ?";
@@ -32,18 +33,18 @@ if (isset($_POST['artikelnr']) && isset($_POST['kleur']) && isset($_POST['maat']
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Item already in the cart, update the quantity
+        // Item already in the cart, update the quantity and personal message
         $row = $result->fetch_assoc();
         $new_aantal = $row['aantal'] + $aantal;
-        $update_sql = "UPDATE Cart SET aantal = ? WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
+        $update_sql = "UPDATE Cart SET aantal = ?, persoonlijk_bericht = ? WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
         $update_stmt = $conn->prepare($update_sql);
-        $update_stmt->bind_param("iiii", $new_aantal, $user_id, $artikelnr, $variantnr);
+        $update_stmt->bind_param("isiii", $new_aantal, $personal_message, $user_id, $artikelnr, $variantnr);
         $update_stmt->execute();
     } else {
-        // Item not in the cart, insert a new row
-        $insert_sql = "INSERT INTO Cart (user_id, artikelnr, variantnr, aantal) VALUES (?, ?, ?, ?)";
+        // Item not in the cart, insert a new row with personal message
+        $insert_sql = "INSERT INTO Cart (user_id, artikelnr, variantnr, aantal, persoonlijk_bericht) VALUES (?, ?, ?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("iiii", $user_id, $artikelnr, $variantnr, $aantal);
+        $insert_stmt->bind_param("iiiss", $user_id, $artikelnr, $variantnr, $aantal, $personal_message);
         $insert_stmt->execute();
     }
 

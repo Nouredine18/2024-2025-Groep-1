@@ -79,8 +79,7 @@ if ($payment_method == 'Stripe') {
             'line_items' => $line_items, // Remove the extra array wrapping
             'mode' => 'payment',
             'customer' => $customer_id, // Use the correct customer ID
-            'success_url' => 'http://localhost/project/2024-2025-Groep-1/Root/stripe_success.php',
-            'cancel_url' => 'http://localhost/project/2024-2025-Groep-1/Root/stripe_cancel.php',
+            'success_url' => 'http://localhost/yorbe/groepswerk/2024-2025-Groep-1/Root/confirmation_mail.php',
         ]);
 
         // Store the session ID in the session

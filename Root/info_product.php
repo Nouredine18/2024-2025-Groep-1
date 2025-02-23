@@ -83,6 +83,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
     header("Location: info_product.php?artikelnr=$artikelnr");
     exit;
 }
+
+// Handle adding to wishlist
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_wishlist'])) {
+    if (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+
+        // Check if the product is already in the wishlist
+        $sql_check = "SELECT * FROM WishList WHERE user_id = ? AND artikelnr = ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("ii", $user_id, $artikelnr);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+
+        if ($result_check->num_rows == 0) {
+            // Add product to wishlist
+            $sql_insert = "INSERT INTO WishList (user_id, artikelnr) VALUES (?, ?)";
+            $stmt_insert = $conn->prepare($sql_insert);
+            $stmt_insert->bind_param("ii", $user_id, $artikelnr);
+            $stmt_insert->execute();
+            echo "<p>Product toegevoegd aan je verlanglijst!</p>";
+        } else {
+            echo "<p>Dit product staat al in je verlanglijst.</p>";
+        }
+    } else {
+        echo "<p>Je moet ingelogd zijn om een product aan je verlanglijst toe te voegen.</p>";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -148,6 +175,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                 <div class="rating">
                     Gemiddelde beoordeling: 4.5/5
                 </div>
+                
+                <!-- Invoerveld voor kortingscode -->
+                <form action="apply_discount.php" method="post">
+                    <input type="text" name="discount_code" placeholder="Voer kortingscode in" class="discount-input">
+                    <button type="submit" class="discount-button">Toepassen</button>
+                </form>
+
+                <?php
+                // Melding weergeven als de kortingscode succesvol is toegepast
+                if (isset($_SESSION['discount_message'])) {
+                    echo "<p style='color: green;'>" . $_SESSION['discount_message'] . "</p>";
+                    unset($_SESSION['discount_message']);
+                }
+
+                // Melding weergeven als er een fout is met de kortingscode
+                if (isset($_SESSION['discount_error'])) {
+                    echo "<p style='color: red;'>" . $_SESSION['discount_error'] . "</p>";
+                    unset($_SESSION['discount_error']);
+                }
+                ?>
+
+
+
+                <!-- Voeg de verlanglijst knop toe -->
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <form action="info_product.php?artikelnr=<?php echo htmlspecialchars($artikelnr); ?>" method="post" class="wishlist-form">
+                        <button type="submit" name="add_to_wishlist" class="wishlist-button">Voeg toe aan verlanglijst</button>
+                    </form>
+                <?php else: ?>
+                    <p>Log in om dit product aan je verlanglijst toe te voegen.</p>
+                <?php endif; ?>
+
+                <!-- Tekstvak voor een persoonlijk bericht -->
+                <form action="add_personal_message.php" method="post">
+                    <input type="hidden" name="artikelnr" value="<?php echo htmlspecialchars($product['artikelnr'] ?? ''); ?>">
+                    <textarea name="personal_message" placeholder="Voeg een persoonlijk bericht toe..." rows="4" cols="50"></textarea>
+                    <button type="submit" class="message-button">Opslaan</button>
+                </form>
+
                 <button onclick="window.location.href='index.php'" class="back-button">Ga Terug</button>
             </div>
         </div>
@@ -160,144 +226,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_text'], $_POST
                     <div class="rating">Rating: <?php echo htmlspecialchars($review['rating']); ?>/5</div>
                     <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
                     <small>Beoordeeld op <?php echo htmlspecialchars($review['review_date']); ?></small>
-                    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'admin'): ?>
-                        <form method="post" action="">
+                    <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin'): ?>
+                        <form method="post" action="info_product.php?artikelnr=<?php echo $artikelnr; ?>">
                             <input type="hidden" name="review_id" value="<?php echo $review['review_id']; ?>">
-                            <button type="submit" name="delete_review">Verwijder</button>
+                            <button type="submit" name="delete_review">Verwijder review</button>
                         </form>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
 
+            <!-- Voeg een nieuwe review toe -->
             <?php if (isset($_SESSION['user_id'])): ?>
-                <h3>Schrijf een beoordeling</h3>
-                <form action="info_product.php?artikelnr=<?php echo htmlspecialchars($artikelnr); ?>" method="post" class="review-form">
-                    <textarea name="review_text" placeholder="Schrijf je beoordeling hier..." required></textarea>
+                <form method="post" action="info_product.php?artikelnr=<?php echo $artikelnr; ?>">
+                    <textarea name="review_text" placeholder="Schrijf een beoordeling..." required></textarea>
                     <select name="rating" required>
-                        <option value="5">5 - Uitstekend</option>
-                        <option value="4">4 - Goed</option>
-                        <option value="3">3 - Gemiddeld</option>
-                        <option value="2">2 - Slecht</option>
-                        <option value="1">1 - Zeer slecht</option>
+                        <option value="1">1 Ster</option>
+                        <option value="2">2 Sterren</option>
+                        <option value="3">3 Sterren</option>
+                        <option value="4">4 Sterren</option>
+                        <option value="5">5 Sterren</option>
                     </select>
-                    <button type="submit">Beoordeling indienen</button>
+                    <button type="submit">Plaats beoordeling</button>
                 </form>
             <?php else: ?>
-                <p>Log in om een beoordeling te schrijven.</p>
+                <p>Log in om een beoordeling achter te laten.</p>
             <?php endif; ?>
         </div>
     </div>
-
-    <div id="imageModal" class="modal">
-        <span class="close">&times;</span>
-        <img class="modal-content" id="modalImage">
-        <div id="caption"></div>
-        <a class="prev" id="prev">&#10094;</a>
-        <a class="next" id="next">&#10095;</a>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const firstColor = document.querySelector('.color');
-            if (firstColor) {
-                firstColor.click();
-            }
-        });
-
-        document.querySelectorAll('.color').forEach(function (colorDiv) {
-            colorDiv.addEventListener('click', function () {
-                const selectedColor = this.dataset.color;
-                document.getElementById('selected-color').value = selectedColor;
-                document.getElementById('selected-color-display').textContent = selectedColor;
-                fetchSizes(selectedColor);
-                fetchImages(selectedColor);
-            });
-        });
-
-        function fetchSizes(color) {
-            const artikelnr = <?php echo $artikelnr; ?>;
-            fetch(`fetch_sizes.php?artikelnr=${artikelnr}&color=${color}`)
-                .then(response => response.json())
-                .then(data => {
-                    const sizesContainer = document.getElementById('sizes-container');
-                    sizesContainer.innerHTML = '';
-                    data.sizes.forEach(size => {
-                        const button = document.createElement('button');
-                        button.className = 'size';
-                        button.dataset.size = size;
-                        button.textContent = size;
-                        button.addEventListener('click', function () {
-                            const selectedSize = this.dataset.size;
-                            document.getElementById('selected-size').value = selectedSize;
-                            document.getElementById('selected-size-display').textContent = selectedSize;
-                            document.getElementById('add-to-cart-button').disabled = false;
-                            document.getElementById('order-button').disabled = false;
-                        });
-                        sizesContainer.appendChild(button);
-                    });
-                });
-        }
-
-        function fetchImages(color) {
-            const artikelnr = <?php echo $artikelnr; ?>;
-            fetch(`fetch_images.php?artikelnr=${artikelnr}&color=${color}`)
-                .then(response => response.json())
-                .then(data => {
-                    const gallery = document.getElementById('gallery');
-                    const mainImage = document.getElementById('main-image');
-                    gallery.innerHTML = '';
-                    data.images.forEach(image => {
-                        const img = document.createElement('img');
-                        img.src = image;
-                        img.alt = 'Product afbeelding';
-                        gallery.appendChild(img);
-                    });
-                    if (data.images.length > 0) {
-                        mainImage.src = data.images[0];
-                    } else {
-                        mainImage.src = 'img/main_product_image.jpg';
-                    }
-                    // Add click event to images for modal
-                    addImageClickEvent(data.images);
-                });
-        }
-
-        function addImageClickEvent(images) {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
-            const captionText = document.getElementById("caption");
-            let currentIndex = 0;
-
-            document.querySelectorAll('.gallery img').forEach(function(img, index) {
-                img.onclick = function() {
-                    modal.style.display = "block";
-                    modalImg.src = this.src;
-                    captionText.innerHTML = this.alt;
-                    currentIndex = index;
-                }
-            });
-
-            const span = document.getElementsByClassName("close")[0];
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            const prev = document.getElementById("prev");
-            const next = document.getElementById("next");
-
-            prev.onclick = function() {
-                currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
-                modalImg.src = images[currentIndex];
-            }
-
-            next.onclick = function() {
-                currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
-                modalImg.src = images[currentIndex];
-            }
-        }
-    </script>
-
-    <!-- Include the image_click.php file here -->
-    <?php include 'image_click.php'; ?>
-
 </body>
 </html>

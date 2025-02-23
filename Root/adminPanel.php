@@ -101,6 +101,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
 
     $success_message = "Nieuwe klant succesvol toegevoegd.";
 }
+
+// Verzendkosten toevoegen of bijwerken
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_shipping_cost'])) {
+    $country = $_POST['country'];
+    $min_weight = $_POST['min_weight'];
+    $max_weight = $_POST['max_weight'];
+    $cost = $_POST['cost'];
+
+    $sql = "INSERT INTO shipping_rates (country, min_weight, max_weight, cost) VALUES (?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE cost = VALUES(cost)";
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param("sddd", $country, $min_weight, $max_weight, $cost);
+        if ($stmt->execute()) {
+            $success_message = "Verzendkosten succesvol bijgewerkt.";
+        } else {
+            $error_message = "Fout bij het bijwerken van de verzendkosten.";
+        }
+        $stmt->close();
+    }
+}
+
+// Haal alle verzendkosten op
+$sql_shipping = "SELECT * FROM shipping_rates";
+$result_shipping = $conn->query($sql_shipping);
 ?>
 
 <!DOCTYPE html>
@@ -189,9 +214,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
                             <li><a href="viewcount_cart.php">View Count Cart</a></li>
                             <li><a href="view_bestellingen.php">View Count Users</a></li>
                             <li><a href="overview_discounts.php">View Discounts</a></li>
+                            <li><a href="manage_returns.php">View Returns</a></li>
                             <li><a href="add_brand.php">Add Brand</a></li>
                             <li><a href="stock_overview.php">Stock Overview</a></li>
                             <li><a href="sales_statistics.php">Sales Statistics</a></li>
+                            <li><a href="analyse_returns.php">Analyse Returns</a></li>
                             <li><a href="most_sold_products.php">Most Sold Products</a></li>
                             <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
                             <li><a href="customer_feedback.php">Customer Feedback</a></li>
@@ -433,6 +460,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_customer'])) {
             <?php endif; ?>
         </tbody>
     </table>
+
+    <h2>Verzendkosten Instellen</h2>
+    <form action="" method="post">
+        <label>Land:</label>
+        <input type="text" name="country" required>
+        <label>Min Gewicht (kg):</label>
+        <input type="number" step="0.01" name="min_weight" required>
+        <label>Max Gewicht (kg):</label>
+        <input type="number" step="0.01" name="max_weight" required>
+        <label>Kosten (€):</label>
+        <input type="number" step="0.01" name="cost" required>
+        <input type="submit" name="update_shipping_cost" value="Opslaan">
+    </form>
+
+    <h3>Bestaande verzendtarieven</h3>
+    <table>
+        <tr>
+            <th>Land</th>
+            <th>Min Gewicht</th>
+            <th>Max Gewicht</th>
+            <th>Kosten</th>
+        </tr>
+        <?php while ($row = $result_shipping->fetch_assoc()): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['country']); ?></td>
+                <td><?php echo htmlspecialchars($row['min_weight']); ?> kg</td>
+                <td><?php echo htmlspecialchars($row['max_weight']); ?> kg</td>
+                <td>€ <?php echo htmlspecialchars($row['cost']); ?></td>
+            </tr>
+        <?php endwhile; ?>
+    </table>
+
 
 </main>
 

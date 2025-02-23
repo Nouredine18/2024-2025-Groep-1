@@ -150,7 +150,9 @@ nav ul li a:hover {
             <li><a href="products.php">Products</a></li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="cart.php">Winkelwagen (<?php echo isset($_SESSION['cart_count']) ? $_SESSION['cart_count'] : '0'; ?>)</a></li>
-                <li><a href="complain.php">feedback</a></li>
+                <li><a href="wishlist.php">Verlanglijst</a></li>
+                <li><a href="return_product.php">Retourneren</a></li>
+                <li><a href="complain.php">Feedback</a></li>
         </ul>
     </nav>
     </div>

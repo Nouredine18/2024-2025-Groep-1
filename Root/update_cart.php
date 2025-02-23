@@ -1,46 +1,53 @@
 <?php
-session_start();
 include 'connect.php';
+session_start();
 
-// Controleer of de gebruiker is ingelogd, zo niet, stuur dan door naar de login pagina
 if (!isset($_SESSION['user_id'])) {
     header("Location: login_register.php");
     exit();
 }
 
-$user_id = $_SESSION['user_id']; // Haal het user_id op van de ingelogde gebruiker
+$user_id = $_SESSION['user_id'];
 
-// Verwerken van het verwijderen van een product uit de winkelwagen
+// Verwijderen van producten uit de winkelwagen
 if (isset($_POST['remove'])) {
-    // Haal het artikelnr en variantnr op uit de POST-request (bijv. '1-2')
     list($artikelnr, $variantnr) = explode('-', $_POST['remove']);
-    
-    // Verwijder het geselecteerde artikel uit de winkelwagen
-    $sql = "DELETE FROM Cart WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iii", $user_id, $artikelnr, $variantnr); // Bind de parameters: user_id, artikelnr, variantnr
-    $stmt->execute(); // Voer de query uit
-    $stmt->close(); // Sluit de prepared statement
+    $sql_delete = "DELETE FROM Cart WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
+    $stmt_delete = $conn->prepare($sql_delete);
+    $stmt_delete->bind_param("iii", $user_id, $artikelnr, $variantnr);
+    $stmt_delete->execute();
 }
 
-// Verwerken van de update van de winkelwagen (aanpassen van hoeveelheden)
+// Bijwerken van hoeveelheden en persoonlijke berichten
 if (isset($_POST['update_cart'])) {
-    // Loop door de producten heen die in de winkelwagen zitten
-    foreach ($_POST['quantities'] as $artikelnr => $variants) {
-        foreach ($variants as $variantnr => $quantity) {
-            if ($quantity > 0) {
-                // Update het aantal van het artikel in de winkelwagen
-                $sql = "UPDATE Cart SET aantal = ? WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("iiii", $quantity, $user_id, $artikelnr, $variantnr); // Bind de parameters
-                $stmt->execute(); // Voer de query uit
-                $stmt->close(); // Sluit de prepared statement
+    if (isset($_POST['quantities'])) {
+        foreach ($_POST['quantities'] as $artikelnr => $variants) {
+            foreach ($variants as $variantnr => $aantal) {
+                $aantal = intval($aantal);
+                if ($aantal > 0) {
+                    $sql_update = "UPDATE Cart SET aantal = ? WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
+                    $stmt_update = $conn->prepare($sql_update);
+                    $stmt_update->bind_param("iiii", $aantal, $user_id, $artikelnr, $variantnr);
+                    $stmt_update->execute();
+                }
+            }
+        }
+    }
+
+    if (isset($_POST['personal_message'])) {
+        foreach ($_POST['personal_message'] as $artikelnr => $variants) {
+            foreach ($variants as $variantnr => $persoonlijk_bericht) {
+                $persoonlijk_bericht = trim($persoonlijk_bericht);
+                $sql_update_msg = "UPDATE Cart SET persoonlijk_bericht = ? WHERE user_id = ? AND artikelnr = ? AND variantnr = ?";
+                $stmt_update_msg = $conn->prepare($sql_update_msg);
+                $stmt_update_msg->bind_param("siii", $persoonlijk_bericht, $user_id, $artikelnr, $variantnr);
+                $stmt_update_msg->execute();
             }
         }
     }
 }
 
-// Nadat de wijzigingen zijn doorgevoerd, stuur de gebruiker terug naar de winkelwagen pagina
+// Terugsturen naar de winkelwagen
 header("Location: cart.php");
 exit();
 ?>
