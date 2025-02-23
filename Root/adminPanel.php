@@ -222,6 +222,8 @@ $result_shipping = $conn->query($sql_shipping);
                             <li><a href="most_sold_products.php">Most Sold Products</a></li>
                             <li><a href="customer_satisfaction.php">Customer Satisfaction</a></li>
                             <li><a href="customer_feedback.php">Customer Feedback</a></li>
+                            <li><a href="sales_per_country.php">sales per country</a></li>
+                            <li><a href="modify_points.php">modify points</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>
