@@ -3,12 +3,15 @@ include 'connect.php';
 session_start();
 
 // Check if the popup was shown in the last hour
-if (!isset($_SESSION['last_popup']) || (time() - $_SESSION['last_popup']) > 3600) {
+if (!isset($_SESSION['last_popup']) || (time() - $_SESSION['last_popup']) > 1) {
     $_SESSION['show_popup'] = true;
     $_SESSION['last_popup'] = time();
 } else {
     $_SESSION['show_popup'] = false;
 }
+
+// Threshold voor nieuwe producten (laatste 30 dagen)
+$newProductThreshold = new DateTime('-30 days');
 
 // Check if the user is logged in and is a customer
 if (isset($_SESSION['user_id'])) {
@@ -17,6 +20,7 @@ if (isset($_SESSION['user_id'])) {
     // Query to find the most purchased brand by the user
     $brandQuery = "
         SELECT p.merk, COUNT(bp.artikelnr) as count
+        
         FROM BoughtProducts bp
         JOIN Products p ON bp.artikelnr = p.artikelnr
         WHERE bp.user_id = ?
@@ -33,7 +37,7 @@ if (isset($_SESSION['user_id'])) {
     // Fetch products of the most purchased brand
     if ($mostPurchasedBrand) {
         $recommendedQuery = "
-            SELECT artikelnr, naam, prijs, directory
+            SELECT artikelnr, naam, prijs, directory, created_at
             FROM Products
             WHERE merk = ?
             LIMIT 5
@@ -45,7 +49,6 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,14 +57,19 @@ if (isset($_SESSION['user_id'])) {
     <title>Schoenen Wijns</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* General styles */
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
+        /* Header styles */
         .header {
             background-color: #000;
             color: white;
@@ -76,13 +84,25 @@ if (isset($_SESSION['user_id'])) {
             letter-spacing: 1px;
         }
 
+        /* Container for content */
         .container {
+            flex: 1;
             display: flex;
             justify-content: space-between;
             margin: 20px;
             flex-wrap: wrap;
         }
 
+        /* Footer styles */
+        .footer {
+            background-color: #000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        /* Sidebar styles */
         .sidebar {
             width: 250px;
             background-color: #fff;
@@ -123,28 +143,21 @@ if (isset($_SESSION['user_id'])) {
             background-color: #333;
         }
 
+        /* Product display styles */
         .products {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+            align-items: flex-start;
             flex-grow: 1;
-            padding-left: 20px;
         }
 
         .product-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            max-width: 260px;
-            text-align: center;
-            height: 280px;
-        }
-
-        .product-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+            flex: 1 1 calc(20% - 15px); /* Zorgt ervoor dat producten naast elkaar staan, 5 per rij */
+            max-width: 220px; /* Voorkomt te brede items */
+            height: auto; /* Zorgt ervoor dat de hoogte zich aanpast aan de inhoud */
+            position: relative; /* Voor het positioneren van het "Nieuw" label */
         }
 
         .product-card img {
@@ -152,6 +165,11 @@ if (isset($_SESSION['user_id'])) {
             height: 170px;
             object-fit: cover;
             border-bottom: 2px solid #f5f5f5;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .product-card .info {
@@ -165,7 +183,7 @@ if (isset($_SESSION['user_id'])) {
             margin-bottom: 10px;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis; /* Ensures product names don't overflow */
         }
 
         .product-card p {
@@ -175,18 +193,6 @@ if (isset($_SESSION['user_id'])) {
         }
 
         /* Footer styles */
-        .footer {
-            background-color: #111;
-            color: white;
-            text-align: center;
-            padding: 15px;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-            font-size: 14px;
-        }
-
-        /* Popup styles */
         .popup {
             display: none;
             position: fixed;
@@ -247,11 +253,33 @@ if (isset($_SESSION['user_id'])) {
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
         }
+
+        /* Add some custom styles for the new product label */
+        .new-label {
+            background-color: red;
+            color: white;
+            font-weight: bold;
+            padding: 5px 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .discount-label {
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 2px 6px;
+            font-weight: bold;
+        }
+        .discount-price {
+            color: #ff0000;
+        }
     </style>
 </head>
 <body>
-
-    <?php include 'header.php'; ?>
+<?php include 'header.php'; ?>
     <?php include 'popups.php'; ?> <!-- Include advertisement section -->
 
     <?php if ($_SESSION['show_popup']): ?>
@@ -278,12 +306,19 @@ if (isset($_SESSION['user_id'])) {
                                 <h4><?= htmlspecialchars($row['naam']) ?></h4>
                                 <p>€<?= number_format($row['prijs'], 2) ?></p>
                             </div>
+                            <?php
+                            $createdAt = new DateTime($row['created_at']);
+                            if ($createdAt > $newProductThreshold): ?>
+                                <span class="new-label">NEW</span>
+                            <?php endif; ?>
                         </div>
                     <?php endwhile; ?>
                 </div>
             </div>
         <?php endif; ?>
+    </div>
 
+    <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
             <h3>Filter Options</h3>
@@ -338,6 +373,7 @@ if (isset($_SESSION['user_id'])) {
                     <option value="highest" <?= ($_GET['sort'] ?? '') == 'highest' ? 'selected' : '' ?>>Price: High to Low</option>
                     <option value="popularity_asc" <?= ($_GET['sort'] ?? '') == 'popularity_asc' ? 'selected' : '' ?>>Popularity: Least to Most</option>
                     <option value="popularity_desc" <?= ($_GET['sort'] ?? '') == 'popularity_desc' ? 'selected' : '' ?>>Popularity: Most to Least</option>
+                    <option value="newest" <?= ($_GET['sort'] ?? '') == 'newest' ? 'selected' : '' ?>>Newest Arrivals</option>
                 </select>
 
                 <button type="submit">Apply Filters</button>
@@ -352,17 +388,21 @@ if (isset($_SESSION['user_id'])) {
             $types = "";
 
             // Base query to fetch product details
-            $query = "SELECT DISTINCT p.artikelnr, p.naam, p.prijs, p.directory, p.popularity 
+            $query = "SELECT DISTINCT p.artikelnr, p.naam, p.prijs, p.directory, p.popularity, p.created_at, p.discount 
                       FROM Products p
                       LEFT JOIN ProductVariant pv ON p.artikelnr = pv.artikelnr";
+
+            // Apply filters for product variants (size, color, brand, price, etc.)
             $queryConditions = [];
 
+            // Apply search filter if needed
             if (!empty($_GET['search'])) {
                 $queryConditions[] = "p.naam LIKE ?";
                 $params[] = '%' . $_GET['search'] . '%';
                 $types .= 's';
             }
 
+            // Apply price range filter if needed
             if (!empty($_GET['min_price'])) {
                 $queryConditions[] = "p.prijs >= ?";
                 $params[] = $_GET['min_price'];
@@ -374,6 +414,7 @@ if (isset($_SESSION['user_id'])) {
                 $types .= 'd';
             }
 
+            // Apply filters for variants (size, color)
             if (!empty($_GET['kleur'])) {
                 $queryConditions[] = "pv.kleur = ?";
                 $params[] = $_GET['kleur'];
@@ -386,12 +427,14 @@ if (isset($_SESSION['user_id'])) {
                 $types .= 'i';
             }
 
+            // Apply brand filter
             if (!empty($_GET['merk'])) {
                 $queryConditions[] = "p.merk = ?";
                 $params[] = $_GET['merk'];
                 $types .= 's';
             }
 
+            // Combine conditions for WHERE clause
             if (!empty($queryConditions)) {
                 $query .= " WHERE " . implode(" AND ", $queryConditions);
             }
@@ -402,17 +445,25 @@ if (isset($_SESSION['user_id'])) {
                     'lowest' => "ORDER BY p.prijs ASC",
                     'highest' => "ORDER BY p.prijs DESC",
                     'popularity_asc' => "ORDER BY p.popularity ASC",
-                    'popularity_desc' => "ORDER BY p.popularity DESC"
+                    'popularity_desc' => "ORDER BY p.popularity DESC",
+                    'newest' => "ORDER BY p.created_at DESC"
                 ];
                 $query .= " " . $sortOptions[$_GET['sort']];
             }
 
+            // Prioritize products with discounts
+            $query .= " ORDER BY p.discount DESC, p.created_at DESC";
+
+            // Prepare and execute the query
             $stmt = $conn->prepare($query);
             if (!empty($params)) {
                 $stmt->bind_param($types, ...$params);
             }
             $stmt->execute();
             $result = $stmt->get_result();
+
+            // Determine the threshold for new products (e.g., products added in the last 30 days)
+            $newProductThreshold = new DateTime('-30 days');
 
             // Display products if they have matching variants
             if ($result->num_rows > 0) {
@@ -423,7 +474,23 @@ if (isset($_SESSION['user_id'])) {
                     echo '</a>';
                     echo '<div class="info">';
                     echo '<h4>' . htmlspecialchars($row['naam']) . '</h4>';
-                    echo '<p>€' . number_format($row['prijs'], 2) . '</p>';
+
+                    // Calculate and display the discounted price if applicable
+                    $price = $row['prijs'];
+                    if ($row['discount'] > 0) {
+                        $discountedPrice = $price - ($price * ($row['discount'] / 100));
+                        echo '<p><span style="text-decoration: line-through;">€' . number_format($price, 2) . '</span> <span class="discount-price">€' . number_format($discountedPrice, 2) . '</span></p>';
+                        echo '<span class="discount-label">DISCOUNT</span>';
+                    } else {
+                        echo '<p>€' . number_format($price, 2) . '</p>';
+                    }
+
+                    // Check if the product is new (added in the last 30 days)
+                    $createdAt = new DateTime($row['created_at']);
+                    if ($createdAt > $newProductThreshold) {
+                        echo '<span class="new-label">NEW</span>';
+                    }
+
                     echo '</div>';
                     echo '</div>';
                 }
@@ -432,10 +499,6 @@ if (isset($_SESSION['user_id'])) {
             }
             ?>
         </div>
-    </div>
-
-    <div class="footer">
-        <p>&copy; 2024 Schoenen Wijns - All Rights Reserved</p>
     </div>
 
     <script>
@@ -455,5 +518,7 @@ if (isset($_SESSION['user_id'])) {
             }
         });
     </script>
+    <?php include('footer.php'); ?>
+
 </body>
 </html>
